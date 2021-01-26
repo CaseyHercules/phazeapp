@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../widgets/footer.dart';
+import '../widgets/app_drawer.dart';
+
 class LandingScreen extends StatelessWidget {
   static const routeName = '/landing';
   @override
@@ -8,13 +11,42 @@ class LandingScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('Landing Page'),
       ),
-      body: Column(children: [
-        Center(
-          child: Image.network(
-              'https://i1.wp.com/www.interphaze.org/wp-content/uploads/2017/10/InterphazeHeaderLogoClearBack.png?w=300&ssl=1'),
-        )
-        //Center(child: Image.file('/')),
-      ]),
+      body: Container(
+        color: Theme.of(context).backgroundColor,
+        child: Column(children: [
+          SizedBox(
+            height: 100,
+          ),
+          Center(
+            child: Column(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(15),
+                  child: Container(
+                    child: Image.asset(
+                      'assets/images/InterphazeHeaderLogoWhiteBack.png',
+                      height: 150,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 50,
+                ),
+                ListTile(
+                  title: Center(
+                    child: Text(
+                      'Interphaze Mobile App',
+                      style: Theme.of(context).textTheme.headline6,
+                    ),
+                  ),
+                )
+              ],
+            ),
+          )
+        ]),
+      ),
+      drawer: AppDrawer(),
+      bottomNavigationBar: Footer(),
     );
   }
 }
