@@ -12,7 +12,7 @@ class Skill {
   final String descriptionShort;
   @required
   final int tier;
-  final String skillClasification;
+  final String skillClassification;
   final Skill parentSkill;
   final List<Skill> prerequisiteSkills;
   final int permenentEpReduction;
@@ -32,7 +32,7 @@ class Skill {
       this.description,
       this.descriptionShort,
       this.tier,
-      this.skillClasification,
+      this.skillClassification,
       this.parentSkill,
       this.prerequisiteSkills,
       this.permenentEpReduction,

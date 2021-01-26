@@ -8,6 +8,9 @@ class Class {
   @required
   final String description;
   @required
+  final List<int>
+      skillLevelGainAtLevel; //0-20 0 is no skill gain, 1 is tier 1 skill gain, 2 is tier 2 skill gain
+  @required
   final List<int> health;
   @required
   final List<int> ep;
@@ -30,6 +33,7 @@ class Class {
     this.classId,
     this.title,
     this.description,
+    this.skillLevelGainAtLevel,
     this.health,
     this.ep,
     this.attack,
