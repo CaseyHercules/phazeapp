@@ -29,7 +29,7 @@ class PhazeApp extends StatelessWidget {
       darkTheme: ThemeData(
         brightness: Brightness.dark,
         primaryColor: Colors.amber,
-        accentColor: Colors.black87,
+        accentColor: Colors.grey[100],
         backgroundColor: Colors.grey[900],
         textTheme: TextTheme(
           headline6: TextStyle(
@@ -44,12 +44,11 @@ class PhazeApp extends StatelessWidget {
           ),
         ),
       ),
-      themeMode: ThemeMode.system,
+      themeMode: ThemeMode.dark,
       initialRoute: LandingScreen.routeName,
       home: LandingScreen(),
       routes: {
         LandingScreen.routeName: (ctx) => LandingScreen(),
-        //'/welcome': (context) => WelcomeScreen(),
       },
     );
   }
