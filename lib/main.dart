@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:phazeapp/screens/landing_screen.dart';
+import './screens/landing_screen.dart';
 
 void main() => runApp(PhazeApp());
 
