@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:phazeapp/config.dart';
-import 'package:phazeapp/models/skill.dart';
-import 'package:phazeapp/screens/editSkill.dart';
+import 'package:phazeapp/screens/edit_skill_screen.dart';
 import 'package:provider/provider.dart';
+
+import 'config.dart';
+import './models/skill.dart';
+import './models/search_result_provider.dart';
+import './screens/choose_entry.dart';
 import './screens/landing_screen.dart';
 
 void main() => runApp(PhazeApp());
@@ -27,6 +30,7 @@ class _PhazeAppState extends State<PhazeApp> {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (ctx) => Skills()),
+        ChangeNotifierProvider(create: (ctx) => SearchResultProvider()),
       ],
       child: MaterialApp(
         title: 'Interphaze App',
@@ -43,8 +47,8 @@ class _PhazeAppState extends State<PhazeApp> {
               // fontFamily:
             ),
             subtitle2: TextStyle(
-              color: Colors.black,
-              fontSize: 12,
+              color: Colors.black87,
+              fontSize: 16,
               // fontFamily:
             ),
           ),
@@ -55,24 +59,37 @@ class _PhazeAppState extends State<PhazeApp> {
           accentColor: Colors.grey[100],
           backgroundColor: Colors.grey[900],
           textTheme: TextTheme(
+            headline5: TextStyle(
+              color: Colors.black,
+              fontSize: 16,
+              // fontFamily:
+            ),
             headline6: TextStyle(
               color: Colors.white,
               fontSize: 20,
               // fontFamily:
             ),
             subtitle2: TextStyle(
-              color: Colors.white,
+              color: Colors.white70,
               fontSize: 12,
               // fontFamily:
             ),
+            subtitle1: TextStyle(
+              //Text on form size
+              color: Colors.white70,
+              fontSize: 18,
+              // fontFamily:
+            ),
           ),
+          //inputDecorationTheme:
         ),
         themeMode: ThemeMode.dark, //currentTheme.currentTheme(),
         initialRoute: LandingScreen.routeName,
         home: LandingScreen(),
         routes: {
           LandingScreen.routeName: (ctx) => LandingScreen(),
-          EditSkill.routeName: (ctx) => EditSkill(),
+          ChooseEntry.routeName: (ctx) => ChooseEntry(),
+          EditSkillScreen.routeName: (ctx) => EditSkillScreen(),
         },
       ),
     );

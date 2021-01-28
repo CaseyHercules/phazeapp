@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:phazeapp/screens/editSkill.dart';
+import 'package:phazeapp/screens/choose_entry.dart';
 
 class AppDrawer extends StatelessWidget {
   @override
@@ -44,7 +44,7 @@ class AppDrawer extends StatelessWidget {
             ),
             title: Text('Admin Panel'),
             onTap: () {
-              Navigator.of(context).pushReplacementNamed(EditSkill.routeName);
+              Navigator.of(context).popAndPushNamed(ChooseEntry.routeName);
             },
           ),
         ],

@@ -96,7 +96,7 @@ class Skills with ChangeNotifier {
       title: 'Extra EPs',
       description: 'Character gains a permanent addition of 2 EPs.',
       tier: 1,
-      permenentEpReduction: null,
+      permenentEpReduction: -2,
       epCost: null,
       activation: 'None',
       duration: 'Always On',
@@ -118,7 +118,11 @@ class Skills with ChangeNotifier {
       return [];
     }
     for (int i = 0; i < _skills.length; i++) {
-      if (_skills[i].title.toLowerCase().contains(title.toLowerCase())) {
+      if (_skills[i].title.toLowerCase().contains(title.toLowerCase()) ||
+          _skills[i]
+              .skillGroupName
+              .toLowerCase()
+              .contains(title.toLowerCase())) {
         //print(_skills[i].title.toLowerCase());
         _searchedSkills.add(_skills[i]);
         if (_searchedSkills.length >= results) {

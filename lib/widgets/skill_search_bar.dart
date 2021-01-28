@@ -1,0 +1,71 @@
+import 'package:flutter/material.dart';
+import 'package:phazeapp/screens/edit_skill_screen.dart';
+import 'package:provider/provider.dart';
+
+import '../models/skill.dart';
+
+class SkillSearchBar extends StatefulWidget {
+  @override
+  _SkillSearchBarState createState() => _SkillSearchBarState();
+}
+
+List<Skill> getSkill() {
+  return [..._searchResults];
+}
+
+List<Skill> _searchResults = [];
+
+class _SkillSearchBarState extends State<SkillSearchBar> {
+  @override
+  Widget build(BuildContext context) {
+    final skills = Provider.of<Skills>(context);
+    return Column(
+      children: [
+        ListTile(
+          title: Form(
+            child: TextFormField(
+              decoration: InputDecoration(
+                labelText: 'Skill Search',
+                border: OutlineInputBorder(),
+              ),
+              textInputAction: TextInputAction.none,
+              keyboardType: TextInputType.text,
+              keyboardAppearance: Theme.of(context).brightness,
+              onChanged: (value) {
+                _searchResults = skills.skillsWithTitle(value);
+                setState(() {});
+              },
+            ),
+          ),
+          trailing: IconButton(
+            icon: Icon(Icons.add),
+            onPressed: () {
+              Navigator.of(context)
+                  .pushNamed(EditSkillScreen.routeName, arguments: null);
+            },
+          ),
+        ),
+        !(_searchResults.length > 0)
+            ? SizedBox(
+                height: 0,
+              )
+            : Container(
+                height: 50 * _searchResults.length.toDouble(),
+                color: Theme.of(context).backgroundColor,
+                child: ListView.builder(
+                  itemBuilder: (ctx, i) => ListTile(
+                    title: Text(_searchResults[i].skillGroupName == null
+                        ? '${_searchResults[i].title}'
+                        : '${_searchResults[i].skillGroupName} --> ${_searchResults[i].title}'),
+                    onTap: () {
+                      Navigator.of(context).pushNamed(EditSkillScreen.routeName,
+                          arguments: _searchResults[i].id);
+                    },
+                  ),
+                  itemCount: _searchResults.length,
+                ),
+              ),
+      ],
+    );
+  }
+}
