@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import '../widgets/footer.dart';
 import '../widgets/app_drawer.dart';
 
+//Once Logged in, Store Login Key, Then pull skill database
+//Needs to Check if connect
+
 class LandingScreen extends StatelessWidget {
   static const routeName = '/landing';
   @override

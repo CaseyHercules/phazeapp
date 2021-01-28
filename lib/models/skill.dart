@@ -1,4 +1,8 @@
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+import '../models/http_exception.dart';
 
 class Skill {
   @required
@@ -108,22 +112,88 @@ class Skills with ChangeNotifier {
     return _skills.firstWhere((skill) => skill.id == id);
   } //Untested
 
-  List<Skill> skillsWithTitle(String title) {
-    return _skills.where((skill) => skill.title == title).toList().take(5);
+  List<Skill> skillsWithTitle(String title, [int results = 5]) {
+    List<Skill> _searchedSkills = [];
+    if (title == '') {
+      return [];
+    }
+    for (int i = 0; i < _skills.length; i++) {
+      if (_skills[i].title.toLowerCase().contains(title.toLowerCase())) {
+        //print(_skills[i].title.toLowerCase());
+        _searchedSkills.add(_skills[i]);
+        if (_searchedSkills.length >= results) {
+          break;
+        }
+      }
+    }
+    return _searchedSkills;
+  } //Tested, Seems to Work
+
+  Future<void> addSkill(Skill skill, [bool atTop = true]) async {
+    const url =
+        'https://interphaze-pocket-scholar-default-rtdb.firebaseio.com/skills.json';
+    try {
+      final response = await http.post(
+        url,
+        body: jsonEncode(
+          {
+            'title': skill.title,
+            'description': skill.description,
+            'descriptionShort': skill.descriptionShort,
+            'tier': skill.tier,
+            'parentSkillId': skill.parentSkill.id, //Needs to TEST, is SKILL
+            'skillGroupName': skill.skillGroupName,
+            'prerequisiteSkillsIds': skill.prerequisiteSkills
+                .map((e) => e.id), //Needs to be TESTED, is List<Skill>
+            'permenentEpReduction': skill.permenentEpReduction,
+            'epCost': skill.epCost,
+            'activation': skill.activation,
+            'duration': skill.duration,
+            'abilityCheck': skill.abilityCheck,
+            'canBeTakenMultiple': skill.canBeTakenMultiple,
+            'playerVisable': skill.playerVisable,
+          },
+        ),
+      );
+
+      notifyListeners();
+      if (response.statusCode >= 400) {
+        throw HttpException(
+            'Couldn\'t reach server. Error:${response.statusCode}');
+      } else {
+        _skills.insert(
+          atTop ? 0 : _skills.length,
+          Skill(
+            id: json.decode(response.body)['name'],
+            title: skill.title,
+            description: skill.description,
+            descriptionShort: skill.descriptionShort,
+            tier: skill.tier,
+            parentSkill: skill.parentSkill,
+            skillGroupName: skill.skillGroupName,
+            prerequisiteSkills: skill.prerequisiteSkills,
+            permenentEpReduction: skill.permenentEpReduction,
+            epCost: skill.epCost,
+            activation: skill.activation,
+            duration: skill.duration,
+            abilityCheck: skill.abilityCheck,
+            canBeTakenMultiple: skill.canBeTakenMultiple,
+            playerVisable: skill.playerVisable,
+          ),
+        );
+      }
+    } catch (error) {
+      throw (error);
+    }
   } //Untested
 
-  void addSkill(Skill skill, [bool atTop = true]) {
-    atTop ? _skills.insert(0, skill) : _skills.add(skill);
-    notifyListeners();
-  } //Untested
-
-  void moveSkill(String id, int index) {
-    int i = _skills.indexWhere((skill) => skill.id == id);
-    var _tempSkill = _skills[i];
-    _skills.removeAt(i);
-    _skills.insert(index, _tempSkill);
-    notifyListeners();
-  } //Untested
+  // void moveSkill(String id, int index) {
+  //   int i = _skills.indexWhere((skill) => skill.id == id);
+  //   var _tempSkill = _skills[i];
+  //   _skills.removeAt(i);
+  //   _skills.insert(index, _tempSkill);
+  //   notifyListeners();
+  // } //Untested
 
   void updateSkill(Skill skillToUpdate, Skill newSkill) {
     int i = _skills.indexWhere((skill) => skill.id == skillToUpdate.id);

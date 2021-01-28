@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import '../models/skill.dart';
 
 class Class {
   @required
@@ -7,6 +8,8 @@ class Class {
   final String title;
   @required
   final String description;
+  @required
+  final List<Skill> classSkills;
   @required
   final List<int>
       skillLevelGainAtLevel; //0-20 0 is no skill gain, 1 is tier 1 skill gain, 2 is tier 2 skill gain
@@ -33,6 +36,7 @@ class Class {
     this.classId,
     this.title,
     this.description,
+    this.classSkills,
     this.skillLevelGainAtLevel,
     this.health,
     this.ep,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:phazeapp/screens/editSkill.dart';
 
 class AppDrawer extends StatelessWidget {
   @override
@@ -32,6 +33,18 @@ class AppDrawer extends StatelessWidget {
             title: Text('Judge\'s Area'),
             onTap: () {
               //Navigator.of(context).pushReplacementNamed();
+            },
+          ),
+          Divider(),
+          ListTile(
+            leading: Icon(
+              Icons.add,
+              color: Theme.of(context).accentColor,
+              semanticLabel: 'Admin Edit',
+            ),
+            title: Text('Admin Panel'),
+            onTap: () {
+              Navigator.of(context).pushReplacementNamed(EditSkill.routeName);
             },
           ),
         ],
