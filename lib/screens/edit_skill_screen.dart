@@ -289,7 +289,6 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                     controller: _parentSkillTextController,
                     decoration: InputDecoration(
                       labelText: 'Parent Skill Search',
-                      //border: OutlineInputBorder(),
                     ),
                     textInputAction: TextInputAction.none,
                     keyboardType: TextInputType.text,
@@ -299,10 +298,9 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                           Provider.of<Skills>(context, listen: false);
                       _parentSearchResults =
                           _skillProvider.skillsWithTitle(value);
+                      _parentSkill = null;
 
-                      setState(() {
-                        print(_parentSearchResults.length);
-                      });
+                      setState(() {});
                     },
                   ),
                   !(_parentSearchResults.length > 0)
