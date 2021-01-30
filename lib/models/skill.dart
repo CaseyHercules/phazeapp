@@ -114,21 +114,23 @@ class Skills with ChangeNotifier {
 
   List<Skill> skillsWithTitle(String title, [int results = 5]) {
     List<Skill> _searchedSkills = [];
-    if (title == '') {
+    if (title == '' || title == null) {
       return [];
     }
     for (int i = 0; i < _skills.length; i++) {
       if (_skills[i].title.toLowerCase().contains(title.toLowerCase()) ||
-          _skills[i]
-              .skillGroupName
-              .toLowerCase()
-              .contains(title.toLowerCase())) {
-        //print(_skills[i].title.toLowerCase());
+          ((_skills[i].skillGroupName == null ||
+                  _skills[i].skillGroupName == '')
+              ? false
+              : _skills[i]
+                  .skillGroupName
+                  .toLowerCase()
+                  .contains(title.toLowerCase()))) {
         _searchedSkills.add(_skills[i]);
         if (_searchedSkills.length >= results) {
           break;
         }
-      }
+      } else {}
     }
     return _searchedSkills;
   } //Tested, Seems to Work

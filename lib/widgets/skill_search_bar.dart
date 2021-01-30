@@ -9,10 +9,6 @@ class SkillSearchBar extends StatefulWidget {
   _SkillSearchBarState createState() => _SkillSearchBarState();
 }
 
-List<Skill> getSkill() {
-  return [..._searchResults];
-}
-
 List<Skill> _searchResults = [];
 
 class _SkillSearchBarState extends State<SkillSearchBar> {

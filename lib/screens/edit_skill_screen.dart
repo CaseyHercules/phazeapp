@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:phazeapp/widgets/skill_search_bar.dart';
 import 'package:provider/provider.dart';
 
 import '../models/skill.dart';
@@ -12,8 +11,11 @@ class EditSkillScreen extends StatefulWidget {
 
 var _isLoading = false;
 List<Skill> _parentSearchResults = [];
+Skill _parentSkill;
+var _parentSkillTextController = TextEditingController();
 List<Skill> _prerequisiteSearchResults = [];
 List<Skill> _prerequisiteSkillList = [];
+var _prerequisiteSkillTextController = TextEditingController();
 
 final _form = GlobalKey<FormState>();
 
@@ -41,6 +43,15 @@ var _editedSkill = Skill(
 class _EditSkillScreenState extends State<EditSkillScreen> {
   @override
   void didChangeDependencies() {
+    //final _skillList = Provider.of<Skills>(context);
+    _isLoading = false;
+    _parentSearchResults = [];
+    _parentSkill = null;
+    _parentSkillTextController.text = '';
+    _prerequisiteSearchResults = [];
+    _prerequisiteSkillList = [];
+    _prerequisiteSkillTextController.text = '';
+
     final _skillId = ModalRoute.of(context).settings.arguments as String;
     if (_skillId != null) {
       _editedSkill =
@@ -134,7 +145,7 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                     description: _editedSkill.description,
                     descriptionShort: _editedSkill.descriptionShort,
                     tier: _editedSkill.tier,
-                    parentSkill: _editedSkill.parentSkill,
+                    parentSkill: _parentSkill,
                     skillGroupName: _editedSkill.skillGroupName,
                     prerequisiteSkills: _editedSkill.prerequisiteSkills,
                     permenentEpReduction: _editedSkill.permenentEpReduction,
@@ -271,52 +282,55 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                   );
                 },
               ),
-
               //Parent Skill
-              // Column(
-              //   children: [
-              //     TextFormField(
-              //       decoration: InputDecoration(
-              //         labelText: 'Parent Skill Search',
-              //         //border: OutlineInputBorder(),
-              //       ),
-              //       //autovalidateMode: AutovalidateMode.onUserInteraction,
-              //       textInputAction: TextInputAction.none,
-              //       keyboardType: TextInputType.text,
-              //       keyboardAppearance: Theme.of(context).brightness,
-              //       onChanged: (value) {
-              //         final _skillProvider = Provider.of<Skills>(context);
-              //         _parentSearchResults =
-              //             _skillProvider.skillsWithTitle(value);
+              Column(
+                children: [
+                  TextFormField(
+                    controller: _parentSkillTextController,
+                    decoration: InputDecoration(
+                      labelText: 'Parent Skill Search',
+                      //border: OutlineInputBorder(),
+                    ),
+                    textInputAction: TextInputAction.none,
+                    keyboardType: TextInputType.text,
+                    keyboardAppearance: Theme.of(context).brightness,
+                    onChanged: (value) {
+                      final _skillProvider =
+                          Provider.of<Skills>(context, listen: false);
+                      _parentSearchResults =
+                          _skillProvider.skillsWithTitle(value);
 
-              //         setState(() {});
-              //       },
-              //     ),
-              //     !(_parentSearchResults.length > 0)
-              //         ? SizedBox(
-              //             height: 0,
-              //           )
-              //         : Container(
-              //             height: 50 * _parentSearchResults.length.toDouble(),
-              //             color: Theme.of(context).backgroundColor,
-              //             child: ListView.builder(
-              //               itemCount: _parentSearchResults.length,
-              //               itemBuilder: (ctx, i) => ListTile(
-              //                 title: Text(_parentSearchResults[i]
-              //                             .skillGroupName ==
-              //                         null
-              //                     ? '${_parentSearchResults[i].title}'
-              //                     : '${_parentSearchResults[i].skillGroupName} --> ${_parentSearchResults[i].title}'),
-              //                 onTap: () {
-              //                   Navigator.of(context).pushNamed(
-              //                       EditSkillScreen.routeName,
-              //                       arguments: _parentSearchResults[i].id);
-              //                 },
-              //               ),
-              //             ),
-              //           ),
-              //   ],
-              // ),
+                      setState(() {
+                        print(_parentSearchResults.length);
+                      });
+                    },
+                  ),
+                  !(_parentSearchResults.length > 0)
+                      ? SizedBox(
+                          height: 0,
+                        )
+                      : Container(
+                          height: 50 * _parentSearchResults.length.toDouble(),
+                          color: Theme.of(context).backgroundColor,
+                          child: ListView.builder(
+                            itemCount: _parentSearchResults.length,
+                            itemBuilder: (ctx, i) => ListTile(
+                                title: Text(_parentSearchResults[i]
+                                            .skillGroupName ==
+                                        null
+                                    ? '${_parentSearchResults[i].title}'
+                                    : '${_parentSearchResults[i].skillGroupName} --> ${_parentSearchResults[i].title}'),
+                                onTap: () {
+                                  _parentSkill = _parentSearchResults[i];
+                                  _parentSkillTextController.text =
+                                      _parentSearchResults[i].title;
+                                  _parentSearchResults = [];
+                                  setState(() {});
+                                }),
+                          ),
+                        ),
+                ],
+              ),
               TextFormField(
                 // skillGroupName, Works
                 decoration: InputDecoration(
@@ -355,43 +369,86 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                   );
                 },
               ),
-              TextFormField(
-                // prerequisiteSkills
-                decoration: InputDecoration(
-                  labelText: 'prerequisiteSkills',
-                ),
-                textInputAction: TextInputAction.next,
-                keyboardType: TextInputType.text,
-                onFieldSubmitted: (_) {
-                  _form.currentState.validate();
-                },
-                // validator: (value) {
-                //   if (value.isEmpty) {
-                //     return 'Please provide a value';
-                //   }
-                //   return null;
-                // },
-                initialValue: 'prerequisiteSkills DOESN\'T WORK',
-                onSaved: (newValue) {
-                  Skill(
-                    id: _editedSkill.id,
-                    title: _editedSkill.title,
-                    description: _editedSkill.description,
-                    descriptionShort: _editedSkill.descriptionShort,
-                    tier: _editedSkill.tier,
-                    parentSkill: _editedSkill.parentSkill,
-                    skillGroupName: _editedSkill.skillGroupName,
-                    prerequisiteSkills:
-                        _editedSkill.prerequisiteSkills, //Thisone
-                    permenentEpReduction: _editedSkill.permenentEpReduction,
-                    epCost: _editedSkill.epCost,
-                    activation: _editedSkill.activation,
-                    duration: _editedSkill.duration,
-                    abilityCheck: _editedSkill.abilityCheck,
-                    canBeTakenMultiple: _editedSkill.canBeTakenMultiple,
-                    playerVisable: _editedSkill.playerVisable,
-                  );
-                },
+              //Prerequisite Skills
+              Column(
+                children: [
+                  TextFormField(
+                    controller: _prerequisiteSkillTextController,
+                    decoration: InputDecoration(
+                      labelText: 'Prerequisite Skills Search',
+                      //border: OutlineInputBorder(),
+                    ),
+                    textInputAction: TextInputAction.none,
+                    keyboardType: TextInputType.text,
+                    keyboardAppearance: Theme.of(context).brightness,
+                    onChanged: (value) {
+                      final _skillProvider =
+                          Provider.of<Skills>(context, listen: false);
+                      _prerequisiteSearchResults =
+                          _skillProvider.skillsWithTitle(value);
+
+                      setState(() {});
+                    },
+                  ),
+                  !(_prerequisiteSearchResults.length > 0)
+                      ? SizedBox(
+                          height: 0,
+                        )
+                      : Container(
+                          height:
+                              50 * _prerequisiteSearchResults.length.toDouble(),
+                          color: Theme.of(context).backgroundColor,
+                          child: ListView.builder(
+                            itemCount: _prerequisiteSearchResults.length,
+                            itemBuilder: (ctx, i) => ListTile(
+                                title: Text(_prerequisiteSearchResults[i]
+                                            .skillGroupName ==
+                                        null
+                                    ? '${_prerequisiteSearchResults[i].title}'
+                                    : '${_prerequisiteSearchResults[i].skillGroupName} --> ${_prerequisiteSearchResults[i].title}'),
+                                onTap: () {
+                                  _prerequisiteSkillList
+                                      .add(_prerequisiteSearchResults[i]);
+                                  _prerequisiteSkillTextController.text = '';
+                                  _prerequisiteSearchResults = [];
+                                  setState(() {});
+                                }),
+                          ),
+                        ),
+                  //VIEWING OF PreRequisite Skills List
+                  _prerequisiteSkillList.length == 0
+                      ? SizedBox(
+                          height: 0,
+                        )
+                      : Container(
+                          height: _prerequisiteSkillList.length > 0 ? 60 : 0,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            //itemExtent: 100,
+                            itemCount: _prerequisiteSkillList.length,
+                            itemBuilder: (ctx, i) => Card(
+                              child: Padding(
+                                padding: EdgeInsets.all(5),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    SizedBox(width: 5),
+                                    Text(_prerequisiteSkillList[i].title),
+                                    IconButton(
+                                        icon: Icon(Icons.delete),
+                                        onPressed: () {
+                                          _prerequisiteSkillList.remove(
+                                              _prerequisiteSkillList[i]);
+                                          setState(() {});
+                                        })
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                ],
               ),
               TextFormField(
                 // permenentEpReduction, Works
