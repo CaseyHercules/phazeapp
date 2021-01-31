@@ -64,6 +64,8 @@ class Skills with ChangeNotifier {
       activation: 'None',
       duration: 'Always On',
       abilityCheck: 'None',
+      canBeTakenMultiple: false,
+      playerVisable: true,
     ),
     Skill(
       id: '002',
@@ -78,6 +80,8 @@ class Skills with ChangeNotifier {
       duration: 'Permanent',
       abilityCheck:
           'None; any attempt to resist automatically negates without check',
+      canBeTakenMultiple: false,
+      playerVisable: true,
     ),
     Skill(
       id: '003',
@@ -90,6 +94,8 @@ class Skills with ChangeNotifier {
       activation: 'None',
       duration: 'Always On',
       abilityCheck: 'None',
+      canBeTakenMultiple: false,
+      playerVisable: true,
     ),
     Skill(
       id: '004',
@@ -106,6 +112,27 @@ class Skills with ChangeNotifier {
 
   List<Skill> get skills {
     return [..._skills];
+  }
+
+  void printSkill(Skill s) {
+    print('ID: ${s.id}');
+    print('Title: ${s.title}');
+    print('Desc: ${s.description}');
+    print('DescS: ${s.descriptionShort}');
+    print('Tier: ${s.tier}');
+    print('Parent: ${s.parentSkill == null ? 'None' : s.parentSkill.title}');
+    print('Skill Group: ${s.skillGroupName}');
+    s.prerequisiteSkills.length == 0
+        ? print('Preq: None')
+        : s.prerequisiteSkills
+            .forEach((skill) => print('Preq: ${skill.title}'));
+    print('pEpRedux: ${s.permenentEpReduction}');
+    print('Ep Cost: ${s.epCost}');
+    print('Activation: ${s.activation}');
+    print('Duration: ${s.duration}');
+    print('Ability Check: ${s.abilityCheck}');
+    print('Taken Mutiple: ${s.canBeTakenMultiple}');
+    print('Visable: ${s.playerVisable}');
   }
 
   Skill findById(String id) {
@@ -147,10 +174,14 @@ class Skills with ChangeNotifier {
             'description': skill.description,
             'descriptionShort': skill.descriptionShort,
             'tier': skill.tier,
-            'parentSkillId': skill.parentSkill.id, //Needs to TEST, is SKILL
+            'parentSkillId': skill.parentSkill == null
+                ? ''
+                : skill.parentSkill.id, //Seems to Work
             'skillGroupName': skill.skillGroupName,
-            'prerequisiteSkillsIds': skill.prerequisiteSkills
-                .map((e) => e.id), //Needs to be TESTED, is List<Skill>
+            'prerequisiteSkillsIds': skill.prerequisiteSkills == null
+                ? ''
+                : skill.prerequisiteSkills
+                    .map((e) => e.id), //Needs to be TESTED, is List<Skill>
             'permenentEpReduction': skill.permenentEpReduction,
             'epCost': skill.epCost,
             'activation': skill.activation,
@@ -161,12 +192,13 @@ class Skills with ChangeNotifier {
           },
         ),
       );
-
-      notifyListeners();
+      print('1$response');
       if (response.statusCode >= 400) {
+        print('2$response');
         throw HttpException(
             'Couldn\'t reach server. Error:${response.statusCode}');
       } else {
+        print('3$response');
         _skills.insert(
           atTop ? 0 : _skills.length,
           Skill(
@@ -201,10 +233,45 @@ class Skills with ChangeNotifier {
   //   notifyListeners();
   // } //Untested
 
-  void updateSkill(Skill skillToUpdate, Skill newSkill) {
-    int i = _skills.indexWhere((skill) => skill.id == skillToUpdate.id);
+  void updateSkill(String skillToUpdateId, Skill newSkill) async {
+    int i = _skills.indexWhere((skill) => skill.id == skillToUpdateId);
     _skills[i] = newSkill;
     notifyListeners();
+    const url =
+        'https://interphaze-pocket-scholar-default-rtdb.firebaseio.com/skills.json';
+    try {
+      final response = await http.patch(
+        url,
+        body: jsonEncode(
+          {
+            'title': newSkill.title,
+            'description': newSkill.description,
+            'descriptionShort': newSkill.descriptionShort,
+            'tier': newSkill.tier,
+            'parentSkillId': newSkill.parentSkill.id, //Needs to TEST, is SKILL
+            'skillGroupName': newSkill.skillGroupName,
+            'prerequisiteSkillsIds': newSkill.prerequisiteSkills
+                .map((e) => e.id), //Needs to be TESTED, is List<Skill>
+            'permenentEpReduction': newSkill.permenentEpReduction,
+            'epCost': newSkill.epCost,
+            'activation': newSkill.activation,
+            'duration': newSkill.duration,
+            'abilityCheck': newSkill.abilityCheck,
+            'canBeTakenMultiple': newSkill.canBeTakenMultiple,
+            'playerVisable': newSkill.playerVisable,
+          },
+        ),
+      );
+
+      notifyListeners();
+      if (response.statusCode >= 400) {
+        throw HttpException(
+            'Couldn\'t reach server. Error:${response.statusCode} \n Please try again in 1 minute. If problem check that you are connected to the internet, then contact the Admin');
+      }
+    } catch (error) {
+      print('Error: $error | Error.toString(): ${error.toString()}');
+      throw (error.toString());
+    }
   } //Untested
 
   void removeSkill(String id, int index) {
