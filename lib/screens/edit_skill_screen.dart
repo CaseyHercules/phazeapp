@@ -35,6 +35,7 @@ var _editedSkillData = [
   '', // [12] Ability Check
   false, // [13] Default Value for CanBeTakenMutiple in Form
   true, // [14] Default Value for CanBeTakenMutiple in Form
+  '', // [15] Skill Group Description
 ];
 
 Skill _editedSkill;
@@ -75,6 +76,7 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
         tier: null,
         parentSkill: null,
         skillGroupName: '',
+        skillGroupDescription: '',
         prerequisiteSkills: null,
         permenentEpReduction: null,
         epCost: '',
@@ -104,6 +106,7 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
       tier: _editedSkillData[4],
       parentSkill: _parentSkill,
       skillGroupName: _editedSkillData[6],
+      skillGroupDescription: _editedSkillData[15],
       prerequisiteSkills: _prerequisiteSkillList,
       permenentEpReduction: _editedSkillData[8],
       epCost: _editedSkillData[9],
@@ -124,7 +127,8 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
         await Provider.of<Skills>(context, listen: false)
             .addSkill(_editedSkill);
       } else {
-        //await Provider.of<Skills>(context, listen: false).updateSkill(_editedSkill.id, _editedSkill);
+        await Provider.of<Skills>(context, listen: false)
+            .updateSkill(_editedSkill);
       }
     } catch (error) {
       await showDialog<Null>(
@@ -299,9 +303,12 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                               child: ListView.builder(
                                 itemCount: _parentSearchResults.length,
                                 itemBuilder: (ctx, i) => ListTile(
-                                    title: Text(_parentSearchResults[i]
-                                                .skillGroupName ==
-                                            null
+                                    title: Text((_parentSearchResults[i]
+                                                    .skillGroupName ==
+                                                null ||
+                                            _parentSearchResults[i]
+                                                    .skillGroupName ==
+                                                '')
                                         ? '${_parentSearchResults[i].title}'
                                         : '${_parentSearchResults[i].skillGroupName} --> ${_parentSearchResults[i].title}'),
                                     onTap: () {
@@ -337,6 +344,28 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                       _editedSkillData[6] = newValue;
                     },
                   ),
+                  TextFormField(
+                    // skillGroupDescription, Works
+                    decoration: InputDecoration(
+                      labelText: 'Skill Group Description',
+                    ),
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    textInputAction: TextInputAction.next,
+                    keyboardType: TextInputType.text,
+                    onFieldSubmitted: (_) {
+                      _form.currentState.validate();
+                    },
+                    validator: (value) {
+                      // if (value.isEmpty) {
+                      //   return 'Please provide a value';
+                      // }
+                      return null;
+                    },
+                    initialValue: _sourceSkill.skillGroupDescription,
+                    onSaved: (newValue) {
+                      _editedSkillData[15] = newValue;
+                    },
+                  ),
                   //Prerequisite Skills
                   Column(
                     children: [
@@ -369,9 +398,12 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                               child: ListView.builder(
                                 itemCount: _prerequisiteSearchResults.length,
                                 itemBuilder: (ctx, i) => ListTile(
-                                    title: Text(_prerequisiteSearchResults[i]
-                                                .skillGroupName ==
-                                            null
+                                    title: Text((_prerequisiteSearchResults[i]
+                                                    .skillGroupName ==
+                                                null ||
+                                            _prerequisiteSearchResults[i]
+                                                    .skillGroupName ==
+                                                '')
                                         ? '${_prerequisiteSearchResults[i].title}'
                                         : '${_prerequisiteSearchResults[i].skillGroupName} --> ${_prerequisiteSearchResults[i].title}'),
                                     onTap: () {

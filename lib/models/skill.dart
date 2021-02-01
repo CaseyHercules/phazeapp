@@ -16,6 +16,7 @@ class Skill {
   final int tier;
   final Skill parentSkill;
   final String skillGroupName;
+  final String skillGroupDescription;
   final List<Skill> prerequisiteSkills;
   @required
   final int permenentEpReduction;
@@ -40,6 +41,7 @@ class Skill {
       this.tier,
       this.parentSkill,
       this.skillGroupName,
+      this.skillGroupDescription,
       this.prerequisiteSkills,
       this.permenentEpReduction,
       this.epCost,
@@ -55,64 +57,7 @@ class Skill {
 }
 
 class Skills with ChangeNotifier {
-  List<Skill> _skills = [
-    Skill(
-      id: '001',
-      title: 'TEMP: Local Rumors',
-      description:
-          'Scholar has gathered knowledge of the goings-on and plot points of Phaze. Scholar begins play with one piece of information relevant to the local area and/or storyline of the current Phaze event.',
-      tier: 1,
-      skillGroupName: 'Rumors',
-      permenentEpReduction: 1,
-      epCost: null,
-      activation: 'None',
-      duration: 'Always On',
-      abilityCheck: 'None',
-      canBeTakenMultiple: false,
-      playerVisable: true,
-    ),
-    Skill(
-      id: '002',
-      title: 'TEMP: Learn Ability',
-      description:
-          'Scholar spends EP to learn an ability from a target’s Passport; adding it to her codex.  Abilities contained in Skill Codices may not be learned with this ability.  If, at any time during the ritual, the target elects to Actively Resist this effect, their Resistance is automatically successful. Scholar maintains a codex which may be used to collect and utilize class abilities. The Scholar must wield the codex during the use of these abilities.  The Codex is a Challenge Level 1 item (meaning it has a 5% save vs. breaking).',
-      tier: 1,
-      skillGroupName: 'Ability Codex',
-      permenentEpReduction: null,
-      epCost: '2 EP',
-      activation: 'Ritual Action',
-      duration: 'Permanent',
-      abilityCheck:
-          'None; any attempt to resist automatically negates without check',
-      canBeTakenMultiple: false,
-      playerVisable: true,
-    ),
-    Skill(
-      id: '003',
-      title: 'TEMP: Mind Bonus',
-      description: 'Character gains a +5 to Mind save',
-      tier: 1,
-      skillGroupName: 'Save Bonus',
-      permenentEpReduction: 1,
-      epCost: null,
-      activation: 'None',
-      duration: 'Always On',
-      abilityCheck: 'None',
-      canBeTakenMultiple: false,
-      playerVisable: true,
-    ),
-    Skill(
-      id: '004',
-      title: 'TEMP: Extra EPs',
-      description: 'Character gains a permanent addition of 2 EPs.',
-      tier: 1,
-      permenentEpReduction: -2,
-      epCost: null,
-      activation: 'None',
-      duration: 'Always On',
-      abilityCheck: 'None',
-    )
-  ];
+  List<Skill> _skills = [];
 
   List<Skill> get skills {
     return [..._skills];
@@ -126,6 +71,7 @@ class Skills with ChangeNotifier {
     print('Tier: ${s.tier}');
     print('Parent: ${s.parentSkill == null ? 'None' : s.parentSkill.title}');
     print('Skill Group: ${s.skillGroupName}');
+    print('Skill Group Desc: ${s.skillGroupDescription}');
     s.prerequisiteSkills.length == 0
         ? print('Preq: None')
         : s.prerequisiteSkills
@@ -169,13 +115,13 @@ class Skills with ChangeNotifier {
     return _searchedSkills;
   } //Tested, Seems to Work
 
-  Future<void> fetchAndSetProducts() async {
+  Future<void> fetchAndSetSkills() async {
     const url =
         'https://interphaze-pocket-scholar-default-rtdb.firebaseio.com/skills.json';
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
-      final List<Skill> loadedSkills = [];
+      List<Skill> loadedSkills = [];
       if (extractedData == null) {
         return;
       }
@@ -192,15 +138,12 @@ class Skills with ChangeNotifier {
             description: skill['description'],
             descriptionShort: skill['descriptionShort'],
             tier: skill['tier'],
-            parentSkill: findById(skill['parentSkillId']),
+            //parentSkill: null,
             skillGroupName: skill['skillGroupName'] == skill['title']
-                ? null
+                ? ''
                 : skill['skillGroupName'],
-            prerequisiteSkills: skill['prerequisiteSkillsIds']
-                .toString()
-                .split(",")
-                .map((s) => findById(s == id ? null : s))
-                .toList(),
+            skillGroupDescription: skill['skillGroupDescription'],
+            //prerequisiteSkills: null,
             permenentEpReduction: skill['permenentEpReduction'],
             epCost: (skill['epCost'] == null) ? 'None' : skill['epCost'],
             activation: skill['activation'],
@@ -212,6 +155,7 @@ class Skills with ChangeNotifier {
         );
       });
       _skills = loadedSkills;
+      loadedSkills = [];
 
       //Second Run
       extractedData.forEach((id, skill) {
@@ -224,13 +168,16 @@ class Skills with ChangeNotifier {
             tier: skill['tier'],
             parentSkill: findById(skill['parentSkillId']),
             skillGroupName: skill['skillGroupName'] == skill['title']
-                ? null
+                ? ''
                 : skill['skillGroupName'],
-            prerequisiteSkills: skill['prerequisiteSkillsIds']
-                .toString()
-                .split(",")
-                .map((s) => findById(s == id ? null : s))
-                .toList(),
+            skillGroupDescription: skill['skillGroupDescription'],
+            prerequisiteSkills: skill['prerequisiteSkillsIds'].toString() != ''
+                ? skill['prerequisiteSkillsIds']
+                    .toString()
+                    .split(",")
+                    .map((s) => findById(s))
+                    .toList()
+                : [],
             permenentEpReduction: skill['permenentEpReduction'],
             epCost: (skill['epCost'] == null) ? 'None' : skill['epCost'],
             activation: skill['activation'],
@@ -242,6 +189,7 @@ class Skills with ChangeNotifier {
         );
       });
       _skills = loadedSkills;
+      loadedSkills = [];
     } catch (error) {
       print(error);
       throw (error);
@@ -264,6 +212,7 @@ class Skills with ChangeNotifier {
                 ? ''
                 : skill.parentSkill.id, //Seems to Work
             'skillGroupName': skill.skillGroupName,
+            'skillGroupDescription': skill.skillGroupDescription,
             //Needs to be TESTED, is List<Skill>
             'prerequisiteSkillsIds': skill.prerequisiteSkills == null
                 ? ''
@@ -281,35 +230,13 @@ class Skills with ChangeNotifier {
       if (response.statusCode >= 400) {
         throw HttpException(
             'Couldn\'t reach server. Error:${response.statusCode}');
-      } else {
-        // Insert Shouldn't happen once Fetch is in place.
-        // _skills.insert(
-        //   atTop ? 0 : _skills.length,
-        //   Skill(
-        //     id: json.decode(response.body)['name'],
-        //     title: skill.title,
-        //     description: skill.description,
-        //     descriptionShort: skill.descriptionShort,
-        //     tier: skill.tier,
-        //     parentSkill: skill.parentSkill,
-        //     skillGroupName: skill.skillGroupName,
-        //     prerequisiteSkills: skill.prerequisiteSkills,
-        //     permenentEpReduction: skill.permenentEpReduction,
-        //     epCost: skill.epCost,
-        //     activation: skill.activation,
-        //     duration: skill.duration,
-        //     abilityCheck: skill.abilityCheck,
-        //     canBeTakenMultiple: skill.canBeTakenMultiple,
-        //     playerVisable: skill.playerVisable,
-        //   ),
-        // );
       }
     } catch (error) {
       throw (error);
     }
   }
 
-  void updateSkill(Skill updatedSkill) async {
+  Future<void> updateSkill(Skill updatedSkill) async {
     //Untested
     print('ID: ${updatedSkill.id}');
     final url =
@@ -327,6 +254,7 @@ class Skills with ChangeNotifier {
                 ? ''
                 : updatedSkill.parentSkill.id,
             'skillGroupName': updatedSkill.skillGroupName,
+            'skillGroupDescription': updatedSkill.skillGroupDescription,
             'prerequisiteSkillsIds': updatedSkill.prerequisiteSkills == null
                 ? ''
                 : [...updatedSkill.prerequisiteSkills.map((s) => s.id)]

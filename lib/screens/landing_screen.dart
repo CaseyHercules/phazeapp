@@ -9,7 +9,7 @@ import '../models/skill.dart';
 //Needs to Check if connect
 
 void _fetchDataFromServer(BuildContext context) {
-  Provider.of<Skills>(context, listen: false).fetchAndSetProducts();
+  Provider.of<Skills>(context, listen: false).fetchAndSetSkills();
 }
 
 class LandingScreen extends StatelessWidget {
