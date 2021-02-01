@@ -48,6 +48,10 @@ class Skill {
       this.abilityCheck,
       this.canBeTakenMultiple,
       this.playerVisable});
+
+  String getId(Skill skill) {
+    return this.id;
+  }
 }
 
 class Skills with ChangeNotifier {
@@ -178,10 +182,10 @@ class Skills with ChangeNotifier {
                 ? ''
                 : skill.parentSkill.id, //Seems to Work
             'skillGroupName': skill.skillGroupName,
+            //Needs to be TESTED, is List<Skill>
             'prerequisiteSkillsIds': skill.prerequisiteSkills == null
                 ? ''
-                : skill.prerequisiteSkills
-                    .map((e) => e.id), //Needs to be TESTED, is List<Skill>
+                : [...skill.prerequisiteSkills.map((s) => s.id)].join(","),
             'permenentEpReduction': skill.permenentEpReduction,
             'epCost': skill.epCost,
             'activation': skill.activation,

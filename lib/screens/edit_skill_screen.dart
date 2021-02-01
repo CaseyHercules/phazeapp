@@ -117,8 +117,6 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
     setState(() {
       _isLoading = true;
     });
-
-    //TODO Finish Save Logic
     Provider.of<Skills>(context, listen: false).printSkill(_editedSkill);
 
     try {
@@ -543,6 +541,10 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                     value: _editedSkillData[13],
                     onChanged: (bool value) {
                       setState(() => _editedSkillData[13] = value);
+
+                      print([..._prerequisiteSkillList.map((s) => s.id)]
+                          .join(",")
+                          .toString());
                     },
                     secondary: Icon(
                         _editedSkillData[13] ? Icons.reorder : Icons.maximize),
