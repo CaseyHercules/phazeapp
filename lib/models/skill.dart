@@ -58,7 +58,7 @@ class Skills with ChangeNotifier {
   List<Skill> _skills = [
     Skill(
       id: '001',
-      title: 'Local Rumors',
+      title: 'TEMP: Local Rumors',
       description:
           'Scholar has gathered knowledge of the goings-on and plot points of Phaze. Scholar begins play with one piece of information relevant to the local area and/or storyline of the current Phaze event.',
       tier: 1,
@@ -73,7 +73,7 @@ class Skills with ChangeNotifier {
     ),
     Skill(
       id: '002',
-      title: 'Learn Ability',
+      title: 'TEMP: Learn Ability',
       description:
           'Scholar spends EP to learn an ability from a target’s Passport; adding it to her codex.  Abilities contained in Skill Codices may not be learned with this ability.  If, at any time during the ritual, the target elects to Actively Resist this effect, their Resistance is automatically successful. Scholar maintains a codex which may be used to collect and utilize class abilities. The Scholar must wield the codex during the use of these abilities.  The Codex is a Challenge Level 1 item (meaning it has a 5% save vs. breaking).',
       tier: 1,
@@ -89,7 +89,7 @@ class Skills with ChangeNotifier {
     ),
     Skill(
       id: '003',
-      title: 'Mind Bonus',
+      title: 'TEMP: Mind Bonus',
       description: 'Character gains a +5 to Mind save',
       tier: 1,
       skillGroupName: 'Save Bonus',
@@ -103,7 +103,7 @@ class Skills with ChangeNotifier {
     ),
     Skill(
       id: '004',
-      title: 'Extra EPs',
+      title: 'TEMP: Extra EPs',
       description: 'Character gains a permanent addition of 2 EPs.',
       tier: 1,
       permenentEpReduction: -2,
@@ -140,8 +140,11 @@ class Skills with ChangeNotifier {
   }
 
   Skill findById(String id) {
-    return _skills.firstWhere((skill) => skill.id == id);
-  } //Untested
+    if (id == null || id == '') {
+      return null;
+    }
+    return _skills.firstWhere((skill) => skill.id == id, orElse: () => null);
+  } //Tested Works
 
   List<Skill> skillsWithTitle(String title, [int results = 5]) {
     List<Skill> _searchedSkills = [];
@@ -165,6 +168,85 @@ class Skills with ChangeNotifier {
     }
     return _searchedSkills;
   } //Tested, Seems to Work
+
+  Future<void> fetchAndSetProducts() async {
+    const url =
+        'https://interphaze-pocket-scholar-default-rtdb.firebaseio.com/skills.json';
+    try {
+      final response = await http.get(url);
+      final extractedData = json.decode(response.body) as Map<String, dynamic>;
+      final List<Skill> loadedSkills = [];
+      if (extractedData == null) {
+        return;
+      }
+
+      extractedData.forEach((id, skill) {
+        //First Run, MUST RUN TWICE FOR EDGE CASE
+        //Where prerequisiteSkill isn't loaded, so find by ID returns null
+        //But On loading this pile of skills,
+        //prerequisiteSkill could now be loaded
+        loadedSkills.add(
+          Skill(
+            id: id,
+            title: skill['title'],
+            description: skill['description'],
+            descriptionShort: skill['descriptionShort'],
+            tier: skill['tier'],
+            parentSkill: findById(skill['parentSkillId']),
+            skillGroupName: skill['skillGroupName'] == skill['title']
+                ? null
+                : skill['skillGroupName'],
+            prerequisiteSkills: skill['prerequisiteSkillsIds']
+                .toString()
+                .split(",")
+                .map((s) => findById(s == id ? null : s))
+                .toList(),
+            permenentEpReduction: skill['permenentEpReduction'],
+            epCost: (skill['epCost'] == null) ? 'None' : skill['epCost'],
+            activation: skill['activation'],
+            duration: skill['duration'],
+            abilityCheck: skill['abilityCheck'],
+            canBeTakenMultiple: skill['canBeTakenMultiple'],
+            playerVisable: skill['playerVisable'],
+          ),
+        );
+      });
+      _skills = loadedSkills;
+
+      //Second Run
+      extractedData.forEach((id, skill) {
+        loadedSkills.add(
+          Skill(
+            id: id,
+            title: skill['title'],
+            description: skill['description'],
+            descriptionShort: skill['descriptionShort'],
+            tier: skill['tier'],
+            parentSkill: findById(skill['parentSkillId']),
+            skillGroupName: skill['skillGroupName'] == skill['title']
+                ? null
+                : skill['skillGroupName'],
+            prerequisiteSkills: skill['prerequisiteSkillsIds']
+                .toString()
+                .split(",")
+                .map((s) => findById(s == id ? null : s))
+                .toList(),
+            permenentEpReduction: skill['permenentEpReduction'],
+            epCost: (skill['epCost'] == null) ? 'None' : skill['epCost'],
+            activation: skill['activation'],
+            duration: skill['duration'],
+            abilityCheck: skill['abilityCheck'],
+            canBeTakenMultiple: skill['canBeTakenMultiple'],
+            playerVisable: skill['playerVisable'],
+          ),
+        );
+      });
+      _skills = loadedSkills;
+    } catch (error) {
+      print(error);
+      throw (error);
+    }
+  }
 
   Future<void> addSkill(Skill skill, [bool atTop = true]) async {
     const url =
@@ -196,38 +278,97 @@ class Skills with ChangeNotifier {
           },
         ),
       );
-      print('1$response');
       if (response.statusCode >= 400) {
-        print('2$response');
         throw HttpException(
             'Couldn\'t reach server. Error:${response.statusCode}');
       } else {
-        print('3$response');
-        _skills.insert(
-          atTop ? 0 : _skills.length,
-          Skill(
-            id: json.decode(response.body)['name'],
-            title: skill.title,
-            description: skill.description,
-            descriptionShort: skill.descriptionShort,
-            tier: skill.tier,
-            parentSkill: skill.parentSkill,
-            skillGroupName: skill.skillGroupName,
-            prerequisiteSkills: skill.prerequisiteSkills,
-            permenentEpReduction: skill.permenentEpReduction,
-            epCost: skill.epCost,
-            activation: skill.activation,
-            duration: skill.duration,
-            abilityCheck: skill.abilityCheck,
-            canBeTakenMultiple: skill.canBeTakenMultiple,
-            playerVisable: skill.playerVisable,
-          ),
-        );
+        // Insert Shouldn't happen once Fetch is in place.
+        // _skills.insert(
+        //   atTop ? 0 : _skills.length,
+        //   Skill(
+        //     id: json.decode(response.body)['name'],
+        //     title: skill.title,
+        //     description: skill.description,
+        //     descriptionShort: skill.descriptionShort,
+        //     tier: skill.tier,
+        //     parentSkill: skill.parentSkill,
+        //     skillGroupName: skill.skillGroupName,
+        //     prerequisiteSkills: skill.prerequisiteSkills,
+        //     permenentEpReduction: skill.permenentEpReduction,
+        //     epCost: skill.epCost,
+        //     activation: skill.activation,
+        //     duration: skill.duration,
+        //     abilityCheck: skill.abilityCheck,
+        //     canBeTakenMultiple: skill.canBeTakenMultiple,
+        //     playerVisable: skill.playerVisable,
+        //   ),
+        // );
       }
     } catch (error) {
       throw (error);
     }
-  } //Untested
+  }
+
+  void updateSkill(Skill updatedSkill) async {
+    //Untested
+    print('ID: ${updatedSkill.id}');
+    final url =
+        'https://interphaze-pocket-scholar-default-rtdb.firebaseio.com/skills/${updatedSkill.id}.json';
+    try {
+      final response = await http.patch(
+        url,
+        body: jsonEncode(
+          {
+            'title': updatedSkill.title,
+            'description': updatedSkill.description,
+            'descriptionShort': updatedSkill.descriptionShort,
+            'tier': updatedSkill.tier,
+            'parentSkillId': updatedSkill.parentSkill == null
+                ? ''
+                : updatedSkill.parentSkill.id,
+            'skillGroupName': updatedSkill.skillGroupName,
+            'prerequisiteSkillsIds': updatedSkill.prerequisiteSkills == null
+                ? ''
+                : [...updatedSkill.prerequisiteSkills.map((s) => s.id)]
+                    .join(","),
+            'permenentEpReduction': updatedSkill.permenentEpReduction,
+            'epCost': updatedSkill.epCost,
+            'activation': updatedSkill.activation,
+            'duration': updatedSkill.duration,
+            'abilityCheck': updatedSkill.abilityCheck,
+            'canBeTakenMultiple': updatedSkill.canBeTakenMultiple,
+            'playerVisable': updatedSkill.playerVisable,
+          },
+        ),
+      );
+      if (response.statusCode >= 400) {
+        throw HttpException(
+            'Couldn\'t reach server. Error:${response.statusCode}');
+      }
+    } catch (error) {
+      throw (error);
+    }
+  }
+
+  Future<void> deleteSkill(Skill skill) async {
+    //Untested
+    final url =
+        'https://interphaze-pocket-scholar-default-rtdb.firebaseio.com/skills/${skill.id}.json';
+    try {
+      final response = await http.delete(url);
+      if (response.statusCode >= 400) {
+        throw HttpException(
+            'Couldn\'t reach server. Error:${response.statusCode}');
+      }
+    } catch (error) {
+      throw (error);
+    } finally {
+      _skills.removeAt(_skills.indexWhere((s) => s.id == skill.id));
+      notifyListeners();
+    }
+  }
+
+  // Get Skills from Data and decode the JSON
 
   // void moveSkill(String id, int index) {
   //   int i = _skills.indexWhere((skill) => skill.id == id);
@@ -236,53 +377,4 @@ class Skills with ChangeNotifier {
   //   _skills.insert(index, _tempSkill);
   //   notifyListeners();
   // } //Untested
-
-  void updateSkill(String skillToUpdateId, Skill newSkill) async {
-    int i = _skills.indexWhere((skill) => skill.id == skillToUpdateId);
-    _skills[i] = newSkill;
-    notifyListeners();
-    const url =
-        'https://interphaze-pocket-scholar-default-rtdb.firebaseio.com/skills.json';
-    try {
-      final response = await http.patch(
-        url,
-        body: jsonEncode(
-          {
-            'title': newSkill.title,
-            'description': newSkill.description,
-            'descriptionShort': newSkill.descriptionShort,
-            'tier': newSkill.tier,
-            'parentSkillId': newSkill.parentSkill.id, //Needs to TEST, is SKILL
-            'skillGroupName': newSkill.skillGroupName,
-            'prerequisiteSkillsIds': newSkill.prerequisiteSkills
-                .map((e) => e.id), //Needs to be TESTED, is List<Skill>
-            'permenentEpReduction': newSkill.permenentEpReduction,
-            'epCost': newSkill.epCost,
-            'activation': newSkill.activation,
-            'duration': newSkill.duration,
-            'abilityCheck': newSkill.abilityCheck,
-            'canBeTakenMultiple': newSkill.canBeTakenMultiple,
-            'playerVisable': newSkill.playerVisable,
-          },
-        ),
-      );
-
-      notifyListeners();
-      if (response.statusCode >= 400) {
-        throw HttpException(
-            'Couldn\'t reach server. Error:${response.statusCode} \n Please try again in 1 minute. If problem check that you are connected to the internet, then contact the Admin');
-      }
-    } catch (error) {
-      print('Error: $error | Error.toString(): ${error.toString()}');
-      throw (error.toString());
-    }
-  } //Untested
-
-  void removeSkill(String id, int index) {
-    int i = _skills.indexWhere((skill) => skill.id == id);
-    _skills.removeAt(i);
-    notifyListeners();
-  } //Untested
-
-  // Get Skills from Data and decode the JSON
 }

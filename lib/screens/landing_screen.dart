@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../widgets/footer.dart';
 import '../widgets/app_drawer.dart';
+import '../models/skill.dart';
 
 //Once Logged in, Store Login Key, Then pull skill database
 //Needs to Check if connect
+
+void _fetchDataFromServer(BuildContext context) {
+  Provider.of<Skills>(context, listen: false).fetchAndSetProducts();
+}
 
 class LandingScreen extends StatelessWidget {
   static const routeName = '/landing';
@@ -13,6 +19,11 @@ class LandingScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Landing Page'),
+        actions: [
+          IconButton(
+              icon: Icon(Icons.update),
+              onPressed: () => _fetchDataFromServer(context)),
+        ],
       ),
       body: Container(
         color: Theme.of(context).backgroundColor,

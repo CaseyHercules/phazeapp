@@ -51,8 +51,8 @@ class _SkillSearchBarState extends State<SkillSearchBar> {
                 child: ListView.builder(
                   itemBuilder: (ctx, i) => ListTile(
                     title: Text(_searchResults[i].skillGroupName == null
-                        ? '${_searchResults[i].title}'
-                        : '${_searchResults[i].skillGroupName} --> ${_searchResults[i].title}'),
+                        ? '${_searchResults[i].title} ${_searchResults[i].tier}'
+                        : '${_searchResults[i].skillGroupName} --> ${_searchResults[i].title} ${_searchResults[i].tier}'),
                     onTap: () {
                       Navigator.of(context).pushNamed(EditSkillScreen.routeName,
                           arguments: _searchResults[i].id);
