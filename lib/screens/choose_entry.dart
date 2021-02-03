@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../widgets/skill_search_bar.dart';
+import '../widgets/class_search_bar.dart';
 
 // Needs To Pull data from server and not phone
+var _titleBarText = 'Edit or Add Skills';
 
 enum ThingsThatCanBeEditied {
   Skills,
@@ -26,7 +28,7 @@ class _ChooseEntryState extends State<ChooseEntry> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit or Add Skill'),
+        title: Text(_titleBarText),
         actions: [
           PopupMenuButton(
             itemBuilder: (_) => [
@@ -59,14 +61,11 @@ class _ChooseEntryState extends State<ChooseEntry> {
               setState(() {
                 if (selectedValue == ThingsThatCanBeEditied.Skills) {
                   _content = SkillSearchBar();
-                  // _formtype = Container(
-                  //   height: 100,
-                  //   width: 100,
-                  //   color: Colors.white,
-                  // );
+                  _titleBarText = 'Edit or Add Skills';
                 }
                 if (selectedValue == ThingsThatCanBeEditied.Classes) {
-                  //searchBar = ClassSearchBar();
+                  _content = ClassSearchBar();
+                  _titleBarText = 'Edit or Add Classes';
                 }
                 // if (selectedValue == ThingsThatCanBeEditied.Spells) {
                 //   //

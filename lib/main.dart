@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 
 import 'config.dart';
 import './models/skill.dart';
-import './models/search_result_provider.dart';
+import './models/class.dart';
 import './screens/choose_entry.dart';
 import './screens/landing_screen.dart';
 
@@ -30,7 +30,7 @@ class _PhazeAppState extends State<PhazeApp> {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (ctx) => Skills()),
-        ChangeNotifierProvider(create: (ctx) => SearchResultProvider()),
+        ChangeNotifierProvider(create: (ctx) => Classes()),
       ],
       child: MaterialApp(
         title: 'Interphaze App',

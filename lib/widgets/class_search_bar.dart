@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:phazeapp/screens/edit_skill_screen.dart';
+import 'package:phazeapp/screens/edit_class_screen.dart';
 import 'package:provider/provider.dart';
 
-import '../models/skill.dart';
+import '../models/class.dart';
 
-class SkillSearchBar extends StatefulWidget {
+class ClassSearchBar extends StatefulWidget {
   @override
-  _SkillSearchBarState createState() => _SkillSearchBarState();
+  _ClassSearchBarState createState() => _ClassSearchBarState();
 }
 
-List<Skill> _searchResults = [];
+List<Class> _searchResults = [];
 
-class _SkillSearchBarState extends State<SkillSearchBar> {
+class _ClassSearchBarState extends State<ClassSearchBar> {
   @override
   void initState() {
     _searchResults = [];
@@ -20,22 +20,25 @@ class _SkillSearchBarState extends State<SkillSearchBar> {
 
   @override
   Widget build(BuildContext context) {
-    final skills = Provider.of<Skills>(context);
+    final classes = Provider.of<Classes>(context);
     return Column(
       children: [
         ListTile(
           title: Form(
             child: TextFormField(
               decoration: InputDecoration(
-                labelText: 'Skill Search',
+                labelText: 'Class Search',
                 border: OutlineInputBorder(),
               ),
               textInputAction: TextInputAction.none,
               keyboardType: TextInputType.text,
               keyboardAppearance: Theme.of(context).brightness,
               onChanged: (value) {
-                _searchResults = skills.skillsWithTitle(value);
-                setState(() {});
+                _searchResults = classes.classesWithTitle(value);
+                setState(() {
+                  print('C');
+                  classes.Test();
+                });
               },
             ),
           ),
@@ -43,7 +46,7 @@ class _SkillSearchBarState extends State<SkillSearchBar> {
             icon: Icon(Icons.add),
             onPressed: () {
               Navigator.of(context)
-                  .pushNamed(EditSkillScreen.routeName, arguments: null);
+                  .pushNamed(EditClassScreen.routeName, arguments: null);
             },
           ),
         ),
@@ -56,13 +59,10 @@ class _SkillSearchBarState extends State<SkillSearchBar> {
                 color: Theme.of(context).backgroundColor,
                 child: ListView.builder(
                   itemBuilder: (ctx, i) => ListTile(
-                    title: Text((_searchResults[i].skillGroupName == '' ||
-                            _searchResults[i].skillGroupName == null)
-                        ? '${_searchResults[i].title} ${_searchResults[i].tier}'
-                        : '${_searchResults[i].skillGroupName} --> ${_searchResults[i].title} ${_searchResults[i].tier}'),
+                    title: Text('${_searchResults[i].title}'),
                     onTap: () {
-                      Navigator.of(context).pushNamed(EditSkillScreen.routeName,
-                          arguments: _searchResults[i].id);
+                      Navigator.of(context).pushNamed(EditClassScreen.routeName,
+                          arguments: _searchResults[i].classId);
                     },
                   ),
                   itemCount: _searchResults.length,
