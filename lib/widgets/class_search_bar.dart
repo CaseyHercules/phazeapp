@@ -37,7 +37,7 @@ class _ClassSearchBarState extends State<ClassSearchBar> {
                 _searchResults = classes.classesWithTitle(value);
                 setState(() {
                   print('C');
-                  classes.Test();
+                  classes.test();
                 });
               },
             ),

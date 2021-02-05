@@ -324,7 +324,7 @@ class Classes extends ChangeNotifier {
     return [..._classes];
   }
 
-  void Test() {
+  void test() {
     _classes.forEach((c) {
       printClass(c);
     });

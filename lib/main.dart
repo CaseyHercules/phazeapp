@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:phazeapp/screens/edit_class_screen.dart';
 import 'package:phazeapp/screens/edit_skill_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -90,6 +91,7 @@ class _PhazeAppState extends State<PhazeApp> {
           LandingScreen.routeName: (ctx) => LandingScreen(),
           ChooseEntry.routeName: (ctx) => ChooseEntry(),
           EditSkillScreen.routeName: (ctx) => EditSkillScreen(),
+          EditClassScreen.routeName: (ctx) => EditClassScreen(),
         },
       ),
     );
