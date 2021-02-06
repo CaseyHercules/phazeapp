@@ -4,12 +4,14 @@ import 'package:provider/provider.dart';
 import '../widgets/footer.dart';
 import '../widgets/app_drawer.dart';
 import '../models/skill.dart';
+import '../models/class.dart';
 
 //Once Logged in, Store Login Key, Then pull skill database
 //Needs to Check if connect
 
 void _fetchDataFromServer(BuildContext context) {
   Provider.of<Skills>(context, listen: false).fetchAndSetSkills();
+  Provider.of<Classes>(context, listen: false).fetchAndSetClasses(context);
 }
 
 class LandingScreen extends StatelessWidget {

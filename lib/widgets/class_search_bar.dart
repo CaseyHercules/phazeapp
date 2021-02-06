@@ -36,8 +36,8 @@ class _ClassSearchBarState extends State<ClassSearchBar> {
               onChanged: (value) {
                 _searchResults = classes.classesWithTitle(value);
                 setState(() {
-                  print('C');
-                  classes.test();
+                  // print('C');
+                  // classes.test();
                 });
               },
             ),

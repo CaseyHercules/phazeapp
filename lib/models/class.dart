@@ -1,5 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'dart:convert';
 
 import '../models/http_exception.dart';
@@ -72,9 +74,9 @@ class Class {
     print('Accuracy: $accuracy');
     print('Defense: $defense');
     print('Resistance: $resistance');
-    print('MindSave: $mindSave');
     print('ToughSave: $toughSave');
     print('QuickSave: $quickSave');
+    print('MindSave: $mindSave');
   }
 }
 
@@ -391,36 +393,155 @@ class Classes extends ChangeNotifier {
   } // Not Tested
 
   //Fetch and Set Classes
-  //Add Class
-  Future<void> addSkill(Class c, [bool atTop = true]) async {
+  Future<void> fetchAndSetClasses(BuildContext context) async {
     const url =
-        'https://interphaze-pocket-scholar-default-rtdb.firebaseio.com/skills.json';
+        'https://interphaze-pocket-scholar-default-rtdb.firebaseio.com/classes.json';
     try {
-      print(c.skillLevelGainAtLevel.toString());
-      print(c.skillLevelGainAtLevel);
-      // final response = await http.post(
-      //   url,
-      //   body: jsonEncode(
-      //     {
-      //       'title': c.title,
-      //       'description': c.description,
-      //       'grantedSkillsIds': null,
-      //       'classSkillsIds': null,
-      //       'skillLevelGainAtLevel': c.skillLevelGainAtLevel.toString(),
-      //       'health': c.health.toString(),
-      //       'ep': c.ep,
-      //       'attack': c.attack,
-      //       'accuracy': c.accuracy,
-      //       'defense': c.defense,
-      //       'resistance': c.resistance,
-      //       'mindSave': c.mindSave,
-      //       'toughSave': c.toughSave,
-      //       'quickSave': c.quickSave,
-      //     },
-      //   ),
-      // );
+      final response = await http.get(url);
+      final extractedData = json.decode(response.body) as Map<String, dynamic>;
+      List<Class> loadedClasses = [];
+      if (extractedData == null) {
+        return;
+      }
+      extractedData.forEach((id, c) {
+        loadedClasses.add(
+          Class(
+            classId: id,
+            title: c['title'],
+            description: c['description'],
+            grantedSkills: c['grantedSkillsIds'].toString() == ''
+                ? []
+                : c['grantedSkillsIds']
+                    .toString()
+                    .split(",")
+                    .map((s) =>
+                        Provider.of<Skills>(context, listen: false).findById(s))
+                    .toList(),
+            classSkills: c['classSkillsIds'].toString() == ''
+                ? []
+                : c['classSkillsIds']
+                    .toString()
+                    .split(",")
+                    .map((s) =>
+                        Provider.of<Skills>(context, listen: false).findById(s))
+                    .toList(),
+            skillLevelGainAtLevel: c['skillLevelGainAtLevel'].cast<int>(),
+            health: c['health'].cast<int>(),
+            ep: c['ep'].cast<int>(),
+            attack: c['attack'].cast<int>(),
+            defense: c['defense'].cast<int>(),
+            accuracy: c['accuracy'].cast<int>(),
+            resistance: c['resistance'].cast<int>(),
+            toughSave: c['toughSave'].cast<int>(),
+            quickSave: c['quickSave'].cast<int>(),
+            mindSave: c['mindSave'].cast<int>(),
+          ),
+        );
+      });
+      _classes = loadedClasses;
+      loadedClasses = [];
+
+      _classes.forEach((c) {
+        printClass(c);
+      });
+    } catch (error) {
+      print(error);
+      throw (error);
+    }
+  }
+
+  //Add Class
+  Future<void> addClass(Class c, [bool atTop = true]) async {
+    const url =
+        'https://interphaze-pocket-scholar-default-rtdb.firebaseio.com/classes.json';
+    try {
+      final response = await http.post(
+        url,
+        body: jsonEncode(
+          {
+            'title': c.title,
+            'description': c.description,
+            'grantedSkillsIds': c.grantedSkills == null
+                ? ''
+                : [...c.grantedSkills.map((s) => s.id)].join(","),
+            'classSkillsIds': c.classSkills == null
+                ? ''
+                : [...c.classSkills.map((s) => s.id)].join(","),
+            'skillLevelGainAtLevel': c.skillLevelGainAtLevel,
+            'health': c.health,
+            'ep': c.ep,
+            'attack': c.attack,
+            'accuracy': c.accuracy,
+            'defense': c.defense,
+            'resistance': c.resistance,
+            'mindSave': c.mindSave,
+            'toughSave': c.toughSave,
+            'quickSave': c.quickSave,
+          },
+        ),
+      );
+      if (response.statusCode >= 400) {
+        throw HttpException(
+            'Couldn\'t reach server. Error:${response.statusCode}');
+      }
     } catch (error) {}
-    //Update Class
-    //Delete Class
+  }
+
+  //Update Class
+  Future<void> updateClass(Class updatedClass, [bool atTop = true]) async {
+    final url =
+        'https://interphaze-pocket-scholar-default-rtdb.firebaseio.com/classes/${updatedClass.classId}.json';
+    try {
+      final response = await http.post(
+        url,
+        body: jsonEncode(
+          {
+            'title': updatedClass.title,
+            'description': updatedClass.description,
+            'grantedSkillsIds': updatedClass.grantedSkills == null
+                ? ''
+                : [...updatedClass.grantedSkills.map((s) => s.id)].join(","),
+            'classSkillsIds': updatedClass.classSkills == null
+                ? ''
+                : [...updatedClass.classSkills.map((s) => s.id)].join(","),
+            'skillLevelGainAtLevel': updatedClass.skillLevelGainAtLevel,
+            'health': updatedClass.health,
+            'ep': updatedClass.ep,
+            'attack': updatedClass.attack,
+            'accuracy': updatedClass.accuracy,
+            'defense': updatedClass.defense,
+            'resistance': updatedClass.resistance,
+            'mindSave': updatedClass.mindSave,
+            'toughSave': updatedClass.toughSave,
+            'quickSave': updatedClass.quickSave,
+          },
+        ),
+      );
+      if (response.statusCode >= 400) {
+        throw HttpException(
+            'Couldn\'t reach server. Error:${response.statusCode}');
+      }
+    } catch (error) {
+      throw (error);
+    }
+  }
+
+  //Delete Class
+  Future<void> deleteClass(Class c) async {
+    //Untested
+    final url =
+        'https://interphaze-pocket-scholar-default-rtdb.firebaseio.com/classes/${c.classId}.json';
+    try {
+      final response = await http.delete(url);
+      if (response.statusCode >= 400) {
+        throw HttpException(
+            'Couldn\'t reach server. Error:${response.statusCode}');
+      }
+    } catch (error) {
+      throw (error);
+    } finally {
+      _classes.removeAt(_classes.indexWhere((c) => c.classId == c.classId));
+      notifyListeners();
+    }
   }
 }

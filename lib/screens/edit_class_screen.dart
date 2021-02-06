@@ -43,16 +43,16 @@ var _editedClassData = [
   '', // 3 Description
   <Skill>[], // 4 Granted Skills
   <Skill>[], // 5 Class Skills
-  <int>[], // 6 Skill Tier Gain at level
-  <int>[], // 7 Health
-  <int>[], // 8 Ep
-  <int>[], // 9 Attack
-  <int>[], //10 Defense
-  <int>[], //11 Accuracy
-  <int>[], //12 Resistance
-  <int>[], //13 Tough Save
-  <int>[], //14 Quick Save
-  <int>[], //15 Mind Save
+  <int>[0], // 6 Skill Tier Gain at level
+  <int>[0], // 7 Health
+  <int>[0], // 8 Ep
+  <int>[0], // 9 Attack
+  <int>[0], //10 Defense
+  <int>[0], //11 Accuracy
+  <int>[0], //12 Resistance
+  <int>[0], //13 Tough Save
+  <int>[0], //14 Quick Save
+  <int>[0], //15 Mind Save
 ];
 
 Class _editedClass;
@@ -82,6 +82,11 @@ class _EditClassScreenState extends State<EditClassScreen> {
     if (_classId != null) {
       _sourceClass =
           Provider.of<Classes>(context, listen: false).findById(_classId);
+      _grantedSkillList =
+          _sourceClass.grantedSkills == null ? [] : _sourceClass.grantedSkills;
+      print(_sourceClass.classSkills == null);
+      _classSkillList =
+          _sourceClass.classSkills == null ? [] : _sourceClass.classSkills;
     } else {
       _sourceClass = Class(
         classId: 'New Class',
@@ -110,6 +115,10 @@ class _EditClassScreenState extends State<EditClassScreen> {
     if (!isValid) {
       return;
     }
+    setState(() {
+      _isLoading = true;
+    });
+
     _form.currentState.save();
     _editedClass = Class(
       classId: _sourceClass.classId,
@@ -129,7 +138,35 @@ class _EditClassScreenState extends State<EditClassScreen> {
       quickSave: _editedClassData[14],
       mindSave: _editedClassData[15],
     );
-    //_editedClass.printClass();
+
+    try {
+      if (_editedClass.classId == 'New Class') {
+        await Provider.of<Classes>(context, listen: false)
+            .addClass(_editedClass);
+      } else {
+        await Provider.of<Classes>(context, listen: false)
+            .updateClass(_editedClass);
+      }
+    } catch (error) {
+      await showDialog<Null>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text('An Error Occured!'),
+          content: Text(error.toString()),
+          actions: [
+            FlatButton(
+                onPressed: () {
+                  //Navigator.of(ctx).pop();
+                },
+                child: Text('Okay'))
+          ],
+        ),
+      );
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override

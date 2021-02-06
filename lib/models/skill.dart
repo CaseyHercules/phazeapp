@@ -208,12 +208,10 @@ class Skills with ChangeNotifier {
             'description': skill.description,
             'descriptionShort': skill.descriptionShort,
             'tier': skill.tier,
-            'parentSkillId': skill.parentSkill == null
-                ? ''
-                : skill.parentSkill.id, //Seems to Work
+            'parentSkillId':
+                skill.parentSkill == null ? '' : skill.parentSkill.id,
             'skillGroupName': skill.skillGroupName,
             'skillGroupDescription': skill.skillGroupDescription,
-            //Needs to be TESTED, is List<Skill>
             'prerequisiteSkillsIds': skill.prerequisiteSkills == null
                 ? ''
                 : [...skill.prerequisiteSkills.map((s) => s.id)].join(","),
