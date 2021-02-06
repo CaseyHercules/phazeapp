@@ -10,6 +10,30 @@ class EditClassScreen extends StatefulWidget {
   _EditClassScreenState createState() => _EditClassScreenState();
 }
 
+final List<int> temp = [
+  1,
+  2,
+  3,
+  4,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  50,
+  3,
+  2,
+];
 final _form = GlobalKey<FormState>();
 var _isLoading = false;
 var _editedClassData = [
@@ -17,8 +41,8 @@ var _editedClassData = [
   true, //1 IsPrimary
   '', // 2 Title
   '', // 3 Description
-  [], // 4 Granted Skills
-  [], // 5 Class Skills
+  <Skill>[], // 4 Granted Skills
+  <Skill>[], // 5 Class Skills
   <int>[], // 6 Skill Tier Gain at level
   <int>[], // 7 Health
   <int>[], // 8 Ep
@@ -86,6 +110,26 @@ class _EditClassScreenState extends State<EditClassScreen> {
     if (!isValid) {
       return;
     }
+    _form.currentState.save();
+    _editedClass = Class(
+      classId: _sourceClass.classId,
+      isPrimary: _editedClassData[1],
+      title: _editedClassData[2],
+      description: _editedClassData[3],
+      grantedSkills: _grantedSkillList,
+      classSkills: _classSkillList,
+      skillLevelGainAtLevel: _editedClassData[6],
+      health: _editedClassData[7],
+      ep: _editedClassData[8],
+      attack: _editedClassData[9],
+      accuracy: _editedClassData[10],
+      defense: _editedClassData[11],
+      resistance: _editedClassData[12],
+      toughSave: _editedClassData[13],
+      quickSave: _editedClassData[14],
+      mindSave: _editedClassData[15],
+    );
+    //_editedClass.printClass();
   }
 
   @override
@@ -178,7 +222,7 @@ class _EditClassScreenState extends State<EditClassScreen> {
                       TextFormField(
                         controller: _grantedSkillTextController,
                         decoration: InputDecoration(
-                          labelText: 'Prerequisite Skills Search',
+                          labelText: 'Granted Skill Search',
                           //border: OutlineInputBorder(),
                         ),
                         textInputAction: TextInputAction.none,
@@ -292,7 +336,7 @@ class _EditClassScreenState extends State<EditClassScreen> {
                                           ? '${_classSkillSearchResults[i].title}'
                                           : '${_classSkillSearchResults[i].skillGroupName} --> ${_classSkillSearchResults[i].title}'),
                                       onTap: () {
-                                        _grantedSkillList
+                                        _classSkillList
                                             .add(_classSkillSearchResults[i]);
                                         _classSkillTextController.text = '';
                                         _classSkillSearchResults = [];
@@ -331,7 +375,7 @@ class _EditClassScreenState extends State<EditClassScreen> {
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Container(
-                          height: 500,
+                          height: 650,
                           width: 1132,
                           child: Column(
                             children: [
@@ -583,14 +627,15 @@ class SingleIntForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      //color: Colors.orange,
       padding: const EdgeInsets.all(2),
       alignment: AlignmentDirectional.bottomCenter,
       width: 50,
       child: TextFormField(
         expands: false,
-        initialValue: inA.length < 20 ? '' : inA[lvl].toString(),
-        //autovalidateMode: AutovalidateMode.onUserInteraction,
+        initialValue: inA.length < 20
+            ? temp[lvl].toString()
+            : inA[lvl].toString(), // ? should be ''
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         textInputAction: TextInputAction.next,
         keyboardType: TextInputType.number,
         decoration: InputDecoration(
@@ -607,9 +652,7 @@ class SingleIntForm extends StatelessWidget {
           return null;
         },
         onSaved: (newValue) {
-          outA[lvl] = (newValue.isEmpty || int.tryParse(newValue) == null)
-              ? null
-              : int.parse(newValue);
+          outA.add(int.tryParse(newValue));
         },
       ),
     );

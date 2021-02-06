@@ -58,6 +58,24 @@ class Class {
     this.quickSave,
     this.mindSave,
   });
+  void printClass() {
+    print('ID: $classId');
+    print('Title: $title');
+    print('Is Primary: $isPrimary');
+    print('Description: $description');
+    print('Granted Skills: $grantedSkills');
+    print('Class Skills: $classSkills');
+    print('Skill Gain: $skillLevelGainAtLevel');
+    print('Health: $health');
+    print('Ep: $ep');
+    print('Attack: $attack');
+    print('Accuracy: $accuracy');
+    print('Defense: $defense');
+    print('Resistance: $resistance');
+    print('MindSave: $mindSave');
+    print('ToughSave: $toughSave');
+    print('QuickSave: $quickSave');
+  }
 }
 
 class Classes extends ChangeNotifier {
