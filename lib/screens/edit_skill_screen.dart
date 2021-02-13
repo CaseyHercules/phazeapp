@@ -16,6 +16,8 @@ var _parentSkillTextController = TextEditingController();
 List<Skill> _prerequisiteSearchResults = [];
 List<Skill> _prerequisiteSkillList = [];
 var _prerequisiteSkillTextController = TextEditingController();
+List<String> _additionalDataList = [];
+var _additionalDataController = TextEditingController();
 
 final _form = GlobalKey<FormState>();
 
@@ -36,6 +38,7 @@ var _editedSkillData = [
   false, // [13] Default Value for CanBeTakenMutiple in Form
   true, // [14] Default Value for CanBeTakenMutiple in Form
   '', // [15] Skill Group Description
+  <String>[], // [16] Additional Data
 ];
 
 Skill _editedSkill;
@@ -51,6 +54,7 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
     _prerequisiteSearchResults = [];
     _prerequisiteSkillList = [];
     _prerequisiteSkillTextController.text = '';
+    _additionalDataList = [];
 
     final _skillId = ModalRoute.of(context).settings.arguments as String;
     if (_skillId != null) {
@@ -67,6 +71,9 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
       _editedSkillData[14] = _sourceSkill.playerVisable == null
           ? true
           : _sourceSkill.playerVisable;
+      _editedSkillData[16] = _sourceSkill.additionalData == null
+          ? []
+          : _sourceSkill.additionalData;
     } else {
       _sourceSkill = Skill(
         id: 'New Skill',
@@ -85,6 +92,7 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
         abilityCheck: '',
         canBeTakenMultiple: _editedSkillData[13],
         playerVisable: _editedSkillData[14],
+        additionalData: [],
       );
     }
     super.didChangeDependencies();
@@ -115,12 +123,13 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
       abilityCheck: _editedSkillData[12],
       canBeTakenMultiple: _editedSkillData[13],
       playerVisable: _editedSkillData[14],
+      additionalData: _additionalDataList,
     );
 
     setState(() {
       _isLoading = true;
     });
-    Provider.of<Skills>(context, listen: false).printSkill(_editedSkill);
+    _editedSkill.printSkill();
 
     try {
       if (_editedSkill.id == 'New Skill') {
@@ -453,6 +462,64 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                             ),
                     ],
                   ),
+                  //Additional Data
+                  Column(
+                    children: [
+                      Row(children: [
+                        Container(
+                          width: MediaQuery.of(context).size.width - 60,
+                          child: TextFormField(
+                            controller: _additionalDataController,
+                            decoration: InputDecoration(
+                              labelText: 'Additional Data Input',
+                            ),
+                            textInputAction: TextInputAction.none,
+                            keyboardType: TextInputType.text,
+                            keyboardAppearance: Theme.of(context).brightness,
+                          ),
+                        ),
+                        IconButton(
+                            icon: Icon(Icons.add),
+                            onPressed: () {
+                              if (_additionalDataController.text != null)
+                                _additionalDataList
+                                    .add(_additionalDataController.text);
+                              _additionalDataController.text = '';
+                              setState(() {});
+                            })
+                      ]),
+                      //VIEWING OF Additional Data List
+                      _additionalDataList.length == 0
+                          ? SizedBox(
+                              height: 0,
+                            )
+                          : Container(
+                              height: _additionalDataList.length > 0 ? 60 : 0,
+                              child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: _additionalDataList.length,
+                                  itemBuilder: (ctx, i) => Card(
+                                      child: Padding(
+                                          padding: EdgeInsets.all(5),
+                                          child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                SizedBox(width: 5),
+                                                Text(_additionalDataList[i]),
+                                                IconButton(
+                                                    icon: Icon(Icons.delete),
+                                                    onPressed: () {
+                                                      _additionalDataList.remove(
+                                                          _additionalDataList[
+                                                              i]);
+                                                      setState(() {});
+                                                    })
+                                              ])))))
+                    ],
+                  ),
+
                   TextFormField(
                     // permenentEpReduction, Works
                     decoration: InputDecoration(

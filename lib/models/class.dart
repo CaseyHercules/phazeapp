@@ -441,9 +441,9 @@ class Classes extends ChangeNotifier {
       _classes = loadedClasses;
       loadedClasses = [];
 
-      _classes.forEach((c) {
-        printClass(c);
-      });
+      // _classes.forEach((c) {
+      //   printClass(c);
+      // });
     } catch (error) {
       print(error);
       throw (error);

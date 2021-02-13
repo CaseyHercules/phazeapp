@@ -18,6 +18,7 @@ class Skill {
   final String skillGroupName;
   final String skillGroupDescription;
   final List<Skill> prerequisiteSkills;
+  final List<String> additionalData;
   @required
   final int permenentEpReduction;
   @required
@@ -43,6 +44,7 @@ class Skill {
       this.skillGroupName,
       this.skillGroupDescription,
       this.prerequisiteSkills,
+      this.additionalData,
       this.permenentEpReduction,
       this.epCost,
       this.activation,
@@ -54,6 +56,33 @@ class Skill {
   String getId(Skill skill) {
     return this.id;
   }
+
+  void printSkill() {
+    print('ID: $id');
+    print('Title: $title');
+    print('Desc: $description');
+    print('DescS: $descriptionShort');
+    print('Tier: $tier');
+    print('Parent: ${parentSkill == null ? 'None' : parentSkill.title}');
+    print('Skill Group: $skillGroupName');
+    print('Skill Group Desc: $skillGroupDescription');
+    (prerequisiteSkills == null || prerequisiteSkills.length == 0)
+        ? print('Preq: None')
+        : prerequisiteSkills.forEach((skill) => print('Preq: ${skill.title}'));
+    print('pEpRedux: $permenentEpReduction');
+    print('Ep Cost: $epCost');
+    print('Activation: $activation');
+    print('Duration: $duration');
+    print('Ability Check: $abilityCheck');
+    print('Taken Mutiple: $canBeTakenMultiple');
+    print('Visable: $playerVisable');
+
+    //TODO Add Additional Data Print
+    // (additionalData as List<dynamic>).map((e) => null)
+    // (additionalData == null || additionalData.length == 0)
+    //     ? print('Additional Data: None')
+    //     : additionalData.forEach((d) => print('AData: $d'));
+  }
 }
 
 class Skills with ChangeNotifier {
@@ -61,28 +90,6 @@ class Skills with ChangeNotifier {
 
   List<Skill> get skills {
     return [..._skills];
-  }
-
-  void printSkill(Skill s) {
-    print('ID: ${s.id}');
-    print('Title: ${s.title}');
-    print('Desc: ${s.description}');
-    print('DescS: ${s.descriptionShort}');
-    print('Tier: ${s.tier}');
-    print('Parent: ${s.parentSkill == null ? 'None' : s.parentSkill.title}');
-    print('Skill Group: ${s.skillGroupName}');
-    print('Skill Group Desc: ${s.skillGroupDescription}');
-    s.prerequisiteSkills.length == 0
-        ? print('Preq: None')
-        : s.prerequisiteSkills
-            .forEach((skill) => print('Preq: ${skill.title}'));
-    print('pEpRedux: ${s.permenentEpReduction}');
-    print('Ep Cost: ${s.epCost}');
-    print('Activation: ${s.activation}');
-    print('Duration: ${s.duration}');
-    print('Ability Check: ${s.abilityCheck}');
-    print('Taken Mutiple: ${s.canBeTakenMultiple}');
-    print('Visable: ${s.playerVisable}');
   }
 
   Skill findById(String id) {
@@ -151,6 +158,12 @@ class Skills with ChangeNotifier {
             abilityCheck: skill['abilityCheck'],
             canBeTakenMultiple: skill['canBeTakenMultiple'],
             playerVisable: skill['playerVisable'],
+            //TODO Add Additional Data Load
+
+            // additionalData: skill['additionalData'] == null
+            //     ? null
+            //     : skill['additionalData'].cast<String>(),
+            //additionalData: skill['additionalData'].cast<String>(),
           ),
         );
       });
@@ -185,8 +198,12 @@ class Skills with ChangeNotifier {
             abilityCheck: skill['abilityCheck'],
             canBeTakenMultiple: skill['canBeTakenMultiple'],
             playerVisable: skill['playerVisable'],
+            //additionalData: skill['additionalData'],
           ),
         );
+      });
+      _skills.forEach((s) {
+        s.printSkill();
       });
       _skills = loadedSkills;
       loadedSkills = [];
@@ -222,6 +239,7 @@ class Skills with ChangeNotifier {
             'abilityCheck': skill.abilityCheck,
             'canBeTakenMultiple': skill.canBeTakenMultiple,
             'playerVisable': skill.playerVisable,
+            'additionalData': skill.additionalData,
           },
         ),
       );
@@ -264,6 +282,7 @@ class Skills with ChangeNotifier {
             'abilityCheck': updatedSkill.abilityCheck,
             'canBeTakenMultiple': updatedSkill.canBeTakenMultiple,
             'playerVisable': updatedSkill.playerVisable,
+            'additionalData': updatedSkill.additionalData,
           },
         ),
       );
