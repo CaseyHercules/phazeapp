@@ -154,7 +154,7 @@ class _EditClassScreenState extends State<EditClassScreen> {
           title: Text('An Error Occured!'),
           content: Text(error.toString()),
           actions: [
-            FlatButton(
+            TextButton(
                 onPressed: () {
                   //Navigator.of(ctx).pop();
                 },

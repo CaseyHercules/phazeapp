@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:phazeapp/screens/edit_skill_screen.dart';
 import 'package:provider/provider.dart';
 
+import '../screens/edit_skill_screen.dart';
 import '../models/skill.dart';
 
 class SkillSearchBar extends StatefulWidget {

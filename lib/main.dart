@@ -8,6 +8,7 @@ import './models/skill.dart';
 import './models/class.dart';
 import './screens/choose_entry.dart';
 import './screens/landing_screen.dart';
+import './screens/skill_list_screen.dart';
 
 void main() => runApp(PhazeApp());
 
@@ -92,6 +93,7 @@ class _PhazeAppState extends State<PhazeApp> {
           ChooseEntry.routeName: (ctx) => ChooseEntry(),
           EditSkillScreen.routeName: (ctx) => EditSkillScreen(),
           EditClassScreen.routeName: (ctx) => EditClassScreen(),
+          SkillListScreen.routeName: (ctx) => SkillListScreen(),
         },
       ),
     );

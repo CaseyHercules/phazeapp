@@ -76,12 +76,7 @@ class Skill {
     print('Ability Check: $abilityCheck');
     print('Taken Mutiple: $canBeTakenMultiple');
     print('Visable: $playerVisable');
-
-    //TODO Add Additional Data Print
-    // (additionalData as List<dynamic>).map((e) => null)
-    // (additionalData == null || additionalData.length == 0)
-    //     ? print('Additional Data: None')
-    //     : additionalData.forEach((d) => print('AData: $d'));
+    print('Additional Data: $additionalData');
   }
 }
 
@@ -134,6 +129,7 @@ class Skills with ChangeNotifier {
       }
 
       extractedData.forEach((id, skill) {
+        print(skill['additionalData']);
         //First Run, MUST RUN TWICE FOR EDGE CASE
         //Where prerequisiteSkill isn't loaded, so find by ID returns null
         //But On loading this pile of skills,
@@ -158,12 +154,9 @@ class Skills with ChangeNotifier {
             abilityCheck: skill['abilityCheck'],
             canBeTakenMultiple: skill['canBeTakenMultiple'],
             playerVisable: skill['playerVisable'],
-            //TODO Add Additional Data Load
-
-            // additionalData: skill['additionalData'] == null
-            //     ? null
-            //     : skill['additionalData'].cast<String>(),
-            //additionalData: skill['additionalData'].cast<String>(),
+            additionalData: skill['additionalData'] == null
+                ? null
+                : skill['additionalData'].cast<String>(),
           ),
         );
       });
@@ -198,7 +191,9 @@ class Skills with ChangeNotifier {
             abilityCheck: skill['abilityCheck'],
             canBeTakenMultiple: skill['canBeTakenMultiple'],
             playerVisable: skill['playerVisable'],
-            //additionalData: skill['additionalData'],
+            additionalData: skill['additionalData'] == null
+                ? null
+                : skill['additionalData'].cast<String>(),
           ),
         );
       });
@@ -207,6 +202,7 @@ class Skills with ChangeNotifier {
       });
       _skills = loadedSkills;
       loadedSkills = [];
+      notifyListeners();
     } catch (error) {
       print(error);
       throw (error);
