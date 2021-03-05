@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 
 class SearchResultProvider with ChangeNotifier {
   // ignore: unused_field
-  String _id;
+  String? _id;
 
   //SearchResultProvider(this._id);
 

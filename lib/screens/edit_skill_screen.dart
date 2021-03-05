@@ -11,10 +11,10 @@ class EditSkillScreen extends StatefulWidget {
 
 var _isLoading = false;
 List<Skill> _parentSearchResults = [];
-Skill _parentSkill;
+Skill? _parentSkill;
 var _parentSkillTextController = TextEditingController();
 List<Skill> _prerequisiteSearchResults = [];
-List<Skill> _prerequisiteSkillList = [];
+List<Skill?>? _prerequisiteSkillList = [];
 var _prerequisiteSkillTextController = TextEditingController();
 List<String> _additionalDataList = [];
 var _additionalDataController = TextEditingController();
@@ -41,8 +41,8 @@ var _editedSkillData = [
   <String>[], // [16] Additional Data
 ];
 
-Skill _editedSkill;
-Skill _sourceSkill;
+late Skill _editedSkill;
+Skill? _sourceSkill;
 
 class _EditSkillScreenState extends State<EditSkillScreen> {
   @override
@@ -56,24 +56,24 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
     _prerequisiteSkillTextController.text = '';
     _additionalDataList = [];
 
-    final _skillId = ModalRoute.of(context).settings.arguments as String;
+    final _skillId = ModalRoute.of(context)!.settings.arguments as String?;
     if (_skillId != null) {
       _sourceSkill =
           Provider.of<Skills>(context, listen: false).findById(_skillId);
       _parentSkill =
-          _sourceSkill.parentSkill == null ? null : _sourceSkill.parentSkill;
-      _prerequisiteSkillList = _sourceSkill.prerequisiteSkills == null
+          _sourceSkill!.parentSkill == null ? null : _sourceSkill!.parentSkill;
+      _prerequisiteSkillList = _sourceSkill!.prerequisiteSkills == null
           ? []
-          : _sourceSkill.prerequisiteSkills;
-      _editedSkillData[13] = _sourceSkill.canBeTakenMultiple == null
+          : _sourceSkill!.prerequisiteSkills;
+      _editedSkillData[13] = (_sourceSkill!.canBeTakenMultiple == null
           ? false
-          : _sourceSkill.canBeTakenMultiple;
-      _editedSkillData[14] = _sourceSkill.playerVisable == null
+          : _sourceSkill!.canBeTakenMultiple)!;
+      _editedSkillData[14] = (_sourceSkill!.playerVisable == null
           ? true
-          : _sourceSkill.playerVisable;
-      _editedSkillData[16] = _sourceSkill.additionalData == null
+          : _sourceSkill!.playerVisable)!;
+      _editedSkillData[16] = (_sourceSkill!.additionalData == null
           ? []
-          : _sourceSkill.additionalData;
+          : _sourceSkill!.additionalData)!;
     } else {
       _sourceSkill = Skill(
         id: 'New Skill',
@@ -90,8 +90,8 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
         activation: '',
         duration: '',
         abilityCheck: '',
-        canBeTakenMultiple: _editedSkillData[13],
-        playerVisable: _editedSkillData[14],
+        canBeTakenMultiple: _editedSkillData[13] as bool?,
+        playerVisable: _editedSkillData[14] as bool?,
         additionalData: [],
       );
     }
@@ -99,30 +99,30 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
   }
 
   Future<void> _saveForm() async {
-    final isValid = _form.currentState.validate();
+    final isValid = _form.currentState!.validate();
     if (!isValid) {
       return;
     }
 
-    _form.currentState.save();
+    _form.currentState!.save();
 
     _editedSkill = Skill(
-      id: _sourceSkill.id,
-      title: _editedSkillData[1],
-      description: _editedSkillData[2],
-      descriptionShort: _editedSkillData[3],
-      tier: _editedSkillData[4],
+      id: _sourceSkill!.id,
+      title: _editedSkillData[1] as String?,
+      description: _editedSkillData[2] as String?,
+      descriptionShort: _editedSkillData[3] as String?,
+      tier: _editedSkillData[4] as int?,
       parentSkill: _parentSkill,
-      skillGroupName: _editedSkillData[6],
-      skillGroupDescription: _editedSkillData[15],
+      skillGroupName: _editedSkillData[6] as String?,
+      skillGroupDescription: _editedSkillData[15] as String?,
       prerequisiteSkills: _prerequisiteSkillList,
-      permenentEpReduction: _editedSkillData[8],
-      epCost: _editedSkillData[9],
-      activation: _editedSkillData[10],
-      duration: _editedSkillData[11],
-      abilityCheck: _editedSkillData[12],
-      canBeTakenMultiple: _editedSkillData[13],
-      playerVisable: _editedSkillData[14],
+      permenentEpReduction: _editedSkillData[8] as int?,
+      epCost: _editedSkillData[9] as String?,
+      activation: _editedSkillData[10] as String?,
+      duration: _editedSkillData[11] as String?,
+      abilityCheck: _editedSkillData[12] as String?,
+      canBeTakenMultiple: _editedSkillData[13] as bool?,
+      playerVisable: _editedSkillData[14] as bool?,
       additionalData: _additionalDataList,
     );
 
@@ -182,7 +182,7 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                     height: 5,
                   ),
                   Text(
-                    'Skill Id: ${_sourceSkill.id}',
+                    'Skill Id: ${_sourceSkill!.id}',
                     style: Theme.of(context).textTheme.subtitle2,
                   ),
                   TextFormField(
@@ -194,14 +194,14 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                     textInputAction: TextInputAction.next,
                     keyboardType: TextInputType.text,
                     validator: (value) {
-                      if (value.isEmpty) {
+                      if (value!.isEmpty) {
                         return 'Please provide a value';
                       }
                       return null;
                     },
-                    initialValue: _sourceSkill.title,
+                    initialValue: _sourceSkill!.title,
                     onSaved: (newValue) {
-                      _editedSkillData[1] = newValue;
+                      _editedSkillData[1] = newValue!;
                     },
                   ),
                   TextFormField(
@@ -217,14 +217,14 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                     keyboardType: TextInputType.text,
 
                     validator: (value) {
-                      if (value.isEmpty) {
+                      if (value!.isEmpty) {
                         return 'Please provide a value';
                       }
                       return null;
                     },
-                    initialValue: _sourceSkill.description,
+                    initialValue: _sourceSkill!.description,
                     onSaved: (newValue) {
-                      _editedSkillData[2] = newValue;
+                      _editedSkillData[2] = newValue!;
                     },
                   ),
                   TextFormField(
@@ -237,7 +237,7 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                     textInputAction: TextInputAction.next,
                     keyboardType: TextInputType.text,
                     onFieldSubmitted: (_) {
-                      _form.currentState.validate();
+                      _form.currentState!.validate();
                     },
                     // validator: (value) {
                     //   if (value.isEmpty) {
@@ -245,9 +245,9 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                     //   }
                     //   return null;
                     // },
-                    initialValue: _sourceSkill.descriptionShort,
+                    initialValue: _sourceSkill!.descriptionShort,
                     onSaved: (newValue) {
-                      _editedSkillData[3] = newValue;
+                      _editedSkillData[3] = newValue!;
                     },
                   ),
                   TextFormField(
@@ -259,10 +259,10 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                     textInputAction: TextInputAction.next,
                     keyboardType: TextInputType.number,
                     onFieldSubmitted: (_) {
-                      _form.currentState.validate();
+                      _form.currentState!.validate();
                     },
                     validator: (value) {
-                      if (value.isEmpty) {
+                      if (value!.isEmpty) {
                         return 'Please provide a value from 1-4';
                       }
                       if (int.tryParse(value) == null) {
@@ -273,11 +273,11 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                       }
                       return null;
                     },
-                    initialValue: _sourceSkill.tier == null
+                    initialValue: _sourceSkill!.tier == null
                         ? ''
-                        : _sourceSkill.tier.toString(),
+                        : _sourceSkill!.tier.toString(),
                     onSaved: (newValue) {
-                      _editedSkillData[4] = int.parse(newValue);
+                      _editedSkillData[4] = int.parse(newValue!);
                     },
                   ),
                   //Parent Skill
@@ -323,7 +323,7 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                                     onTap: () {
                                       _parentSkill = _parentSearchResults[i];
                                       _parentSkillTextController.text =
-                                          _parentSearchResults[i].title;
+                                          _parentSearchResults[i].title!;
                                       _parentSearchResults = [];
                                       setState(() {});
                                     }),
@@ -340,7 +340,7 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                     textInputAction: TextInputAction.next,
                     keyboardType: TextInputType.text,
                     onFieldSubmitted: (_) {
-                      _form.currentState.validate();
+                      _form.currentState!.validate();
                     },
                     validator: (value) {
                       // if (value.isEmpty) {
@@ -348,9 +348,9 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                       // }
                       return null;
                     },
-                    initialValue: _sourceSkill.skillGroupName,
+                    initialValue: _sourceSkill!.skillGroupName,
                     onSaved: (newValue) {
-                      _editedSkillData[6] = newValue;
+                      _editedSkillData[6] = newValue!;
                     },
                   ),
                   TextFormField(
@@ -362,7 +362,7 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                     textInputAction: TextInputAction.next,
                     keyboardType: TextInputType.text,
                     onFieldSubmitted: (_) {
-                      _form.currentState.validate();
+                      _form.currentState!.validate();
                     },
                     validator: (value) {
                       // if (value.isEmpty) {
@@ -370,9 +370,9 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                       // }
                       return null;
                     },
-                    initialValue: _sourceSkill.skillGroupDescription,
+                    initialValue: _sourceSkill!.skillGroupDescription,
                     onSaved: (newValue) {
-                      _editedSkillData[15] = newValue;
+                      _editedSkillData[15] = newValue!;
                     },
                   ),
                   //Prerequisite Skills
@@ -416,7 +416,7 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                                         ? '${_prerequisiteSearchResults[i].title}'
                                         : '${_prerequisiteSearchResults[i].skillGroupName} --> ${_prerequisiteSearchResults[i].title}'),
                                     onTap: () {
-                                      _prerequisiteSkillList
+                                      _prerequisiteSkillList!
                                           .add(_prerequisiteSearchResults[i]);
                                       _prerequisiteSkillTextController.text =
                                           '';
@@ -426,17 +426,17 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                               ),
                             ),
                       //VIEWING OF PreRequisite Skills List
-                      _prerequisiteSkillList.length == 0
+                      _prerequisiteSkillList!.length == 0
                           ? SizedBox(
                               height: 0,
                             )
                           : Container(
                               height:
-                                  _prerequisiteSkillList.length > 0 ? 60 : 0,
+                                  _prerequisiteSkillList!.length > 0 ? 60 : 0,
                               child: ListView.builder(
                                 scrollDirection: Axis.horizontal,
                                 //itemExtent: 100,
-                                itemCount: _prerequisiteSkillList.length,
+                                itemCount: _prerequisiteSkillList!.length,
                                 itemBuilder: (ctx, i) => Card(
                                   child: Padding(
                                     padding: EdgeInsets.all(5),
@@ -446,12 +446,13 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                                           CrossAxisAlignment.center,
                                       children: [
                                         SizedBox(width: 5),
-                                        Text(_prerequisiteSkillList[i].title),
+                                        Text(
+                                            _prerequisiteSkillList![i]!.title!),
                                         IconButton(
                                             icon: Icon(Icons.delete),
                                             onPressed: () {
-                                              _prerequisiteSkillList.remove(
-                                                  _prerequisiteSkillList[i]);
+                                              _prerequisiteSkillList!.remove(
+                                                  _prerequisiteSkillList![i]);
                                               setState(() {});
                                             })
                                       ],
@@ -529,7 +530,7 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                     textInputAction: TextInputAction.next,
                     keyboardType: TextInputType.number,
                     validator: (value) {
-                      if (value.isEmpty) {
+                      if (value!.isEmpty) {
                         return 'Please provide a value, if None, then put 0';
                       }
                       if (int.tryParse(value) == null) {
@@ -540,11 +541,11 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                       }
                       return null;
                     },
-                    initialValue: _sourceSkill.permenentEpReduction == null
+                    initialValue: _sourceSkill!.permenentEpReduction == null
                         ? ''
-                        : _sourceSkill.permenentEpReduction.toString(),
+                        : _sourceSkill!.permenentEpReduction.toString(),
                     onSaved: (newValue) {
-                      _editedSkillData[8] = int.parse(newValue);
+                      _editedSkillData[8] = int.parse(newValue!);
                     },
                   ),
                   TextFormField(
@@ -556,7 +557,7 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                     textInputAction: TextInputAction.next,
                     keyboardType: TextInputType.text,
                     onFieldSubmitted: (_) {
-                      _form.currentState.validate();
+                      _form.currentState!.validate();
                     },
                     validator: (value) {
                       //   if (value.isEmpty) {
@@ -564,9 +565,9 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                       //   }
                       return null;
                     },
-                    initialValue: _sourceSkill.epCost,
+                    initialValue: _sourceSkill!.epCost,
                     onSaved: (newValue) {
-                      _editedSkillData[9] = newValue;
+                      _editedSkillData[9] = newValue!;
                     },
                   ),
                   TextFormField(
@@ -578,17 +579,17 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                     textInputAction: TextInputAction.next,
                     keyboardType: TextInputType.text,
                     onFieldSubmitted: (_) {
-                      _form.currentState.validate();
+                      _form.currentState!.validate();
                     },
                     validator: (value) {
-                      if (value.isEmpty) {
+                      if (value!.isEmpty) {
                         return 'Please provide a value';
                       }
                       return null;
                     },
-                    initialValue: _sourceSkill.activation,
+                    initialValue: _sourceSkill!.activation,
                     onSaved: (newValue) {
-                      _editedSkillData[10] = newValue;
+                      _editedSkillData[10] = newValue!;
                     },
                   ),
                   TextFormField(
@@ -600,17 +601,17 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                     textInputAction: TextInputAction.next,
                     keyboardType: TextInputType.text,
                     onFieldSubmitted: (_) {
-                      _form.currentState.validate();
+                      _form.currentState!.validate();
                     },
                     validator: (value) {
-                      if (value.isEmpty) {
+                      if (value!.isEmpty) {
                         return 'Please provide a value';
                       }
                       return null;
                     },
-                    initialValue: _sourceSkill.duration,
+                    initialValue: _sourceSkill!.duration,
                     onSaved: (newValue) {
-                      _editedSkillData[11] = newValue;
+                      _editedSkillData[11] = newValue!;
                     },
                   ),
                   TextFormField(
@@ -622,46 +623,47 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                     textInputAction: TextInputAction.next,
                     keyboardType: TextInputType.text,
                     onFieldSubmitted: (_) {
-                      _form.currentState.validate();
+                      _form.currentState!.validate();
                     },
                     validator: (value) {
-                      if (value.isEmpty) {
+                      if (value!.isEmpty) {
                         return 'Please provide a value';
                       }
                       return null;
                     },
-                    initialValue: _sourceSkill.abilityCheck,
+                    initialValue: _sourceSkill!.abilityCheck,
                     onSaved: (newValue) {
-                      _editedSkillData[12] = newValue;
+                      _editedSkillData[12] = newValue!;
                     },
                   ),
                   SwitchListTile(
                     // canBeTakenMultiple, Testing
-                    value: _editedSkillData[13],
+                    value: _editedSkillData[13] as bool,
                     onChanged: (bool value) {
                       setState(() => _editedSkillData[13] = value);
 
-                      print([..._prerequisiteSkillList.map((s) => s.id)]
+                      print([..._prerequisiteSkillList!.map((s) => s!.id)]
                           .join(",")
                           .toString());
                     },
-                    secondary: Icon(
-                        _editedSkillData[13] ? Icons.reorder : Icons.maximize),
+                    secondary: Icon(_editedSkillData[13] != null
+                        ? Icons.reorder
+                        : Icons.maximize),
                     title: Text(
-                        '${_editedSkillData[13] ? 'Skill Can be Taken Mutiple Times' : 'Skill Can\'t be Taken Mutiple Times'}'),
+                        '${_editedSkillData[13] != null ? 'Skill Can be Taken Mutiple Times' : 'Skill Can\'t be Taken Mutiple Times'}'),
                   ),
                   SwitchListTile(
                     // playerVisable, Testing
 
-                    value: _editedSkillData[14],
+                    value: _editedSkillData[14] as bool,
                     onChanged: (bool value) {
                       setState(() => _editedSkillData[14] = value);
                     },
-                    secondary: Icon(_editedSkillData[14]
+                    secondary: Icon(_editedSkillData[14] != null
                         ? Icons.visibility
                         : Icons.visibility_off),
                     title: Text(
-                        '${_editedSkillData[14] ? 'Visable to Players' : 'Not Visable to Players'}'),
+                        '${_editedSkillData[14] != null ? 'Visable to Players' : 'Not Visable to Players'}'),
                   )
                 ],
               )),

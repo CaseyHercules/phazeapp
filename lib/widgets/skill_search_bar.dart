@@ -18,11 +18,6 @@ class _SkillSearchBarState extends State<SkillSearchBar> {
     super.initState();
   }
 
-  void hhh() {
-    print('objectHHHHHH');
-    return;
-  }
-
   @override
   Widget build(BuildContext context) {
     final skills = Provider.of<Skills>(context);

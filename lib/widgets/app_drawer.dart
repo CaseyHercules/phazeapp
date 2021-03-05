@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:phazeapp/screens/Skill_list_screen.dart';
+import 'package:phazeapp/screens/skill_list_screen.dart';
 import 'package:phazeapp/screens/choose_entry.dart';
 
 class AppDrawer extends StatelessWidget {

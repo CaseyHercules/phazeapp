@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart' show IterableExtension;
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -9,38 +10,38 @@ import 'skill.dart';
 
 class Class {
   @required
-  final String classId;
+  final String? classId;
   @required
-  final bool isPrimary;
+  final bool? isPrimary;
   @required
-  final String title;
+  final String? title;
   @required
-  final String description;
+  final String? description;
   @required
-  final List<Skill> grantedSkills;
+  final List<Skill?>? grantedSkills;
   @required
-  final List<Skill> classSkills;
+  final List<Skill?>? classSkills;
   @required
-  final List<int>
+  final List<int>?
       skillLevelGainAtLevel; //0-20 0 is no skill gain, 1 is tier 1 skill gain, 2 is tier 2 skill gain
   @required
-  final List<int> health;
+  final List<int>? health;
   @required
-  final List<int> ep;
+  final List<int>? ep;
   @required
-  final List<int> attack;
+  final List<int>? attack;
   @required
-  final List<int> accuracy;
+  final List<int>? accuracy;
   @required
-  final List<int> defense;
+  final List<int>? defense;
   @required
-  final List<int> resistance;
+  final List<int>? resistance;
   @required
-  final List<int> toughSave;
+  final List<int>? toughSave;
   @required
-  final List<int> quickSave;
+  final List<int>? quickSave;
   @required
-  final List<int> mindSave;
+  final List<int>? mindSave;
 
   Class({
     this.classId,
@@ -369,11 +370,11 @@ class Classes extends ChangeNotifier {
     print('QuickSave: ${c.quickSave}');
   } //Not Tested
 
-  Class findById(String id) {
+  Class? findById(String id) {
     if (id == null || id == '') {
       return null;
     }
-    return _classes.firstWhere((c) => c.classId == id, orElse: () => null);
+    return _classes.firstWhereOrNull((c) => c.classId == id);
   } // Not Tested
 
   List<Class> classesWithTitle(String title, [int results = 5]) {
@@ -382,7 +383,7 @@ class Classes extends ChangeNotifier {
       return [];
     }
     for (int i = 0; i < _classes.length; i++) {
-      if (_classes[i].title.toLowerCase().contains(title.toLowerCase())) {
+      if (_classes[i].title!.toLowerCase().contains(title.toLowerCase())) {
         _searchedClasses.add(_classes[i]);
       }
       if (_searchedClasses.length >= results) {
@@ -394,11 +395,13 @@ class Classes extends ChangeNotifier {
 
   //Fetch and Set Classes
   Future<void> fetchAndSetClasses(BuildContext context) async {
-    const url =
-        'https://interphaze-pocket-scholar-default-rtdb.firebaseio.com/classes.json';
+    var url = Uri.https(
+      'interphaze-pocket-scholar-default-rtdb.firebaseio.com',
+      'classes.json',
+    );
     try {
       final response = await http.get(url);
-      final extractedData = json.decode(response.body) as Map<String, dynamic>;
+      final extractedData = json.decode(response.body) as Map<String, dynamic>?;
       List<Class> loadedClasses = [];
       if (extractedData == null) {
         return;
@@ -452,8 +455,10 @@ class Classes extends ChangeNotifier {
 
   //Add Class
   Future<void> addClass(Class c, [bool atTop = true]) async {
-    const url =
-        'https://interphaze-pocket-scholar-default-rtdb.firebaseio.com/classes.json';
+    var url = Uri.https(
+      'interphaze-pocket-scholar-default-rtdb.firebaseio.com',
+      'classes.json',
+    );
     try {
       final response = await http.post(
         url,
@@ -463,10 +468,10 @@ class Classes extends ChangeNotifier {
             'description': c.description,
             'grantedSkillsIds': c.grantedSkills == null
                 ? ''
-                : [...c.grantedSkills.map((s) => s.id)].join(","),
+                : [...c.grantedSkills!.map((s) => s!.id)].join(","),
             'classSkillsIds': c.classSkills == null
                 ? ''
-                : [...c.classSkills.map((s) => s.id)].join(","),
+                : [...c.classSkills!.map((s) => s!.id)].join(","),
             'skillLevelGainAtLevel': c.skillLevelGainAtLevel,
             'health': c.health,
             'ep': c.ep,
@@ -489,8 +494,10 @@ class Classes extends ChangeNotifier {
 
   //Update Class
   Future<void> updateClass(Class updatedClass, [bool atTop = true]) async {
-    final url =
-        'https://interphaze-pocket-scholar-default-rtdb.firebaseio.com/classes/${updatedClass.classId}.json';
+    var url = Uri.https(
+      'interphaze-pocket-scholar-default-rtdb.firebaseio.com',
+      'classes/${updatedClass.classId}.json',
+    );
     try {
       final response = await http.post(
         url,
@@ -500,10 +507,10 @@ class Classes extends ChangeNotifier {
             'description': updatedClass.description,
             'grantedSkillsIds': updatedClass.grantedSkills == null
                 ? ''
-                : [...updatedClass.grantedSkills.map((s) => s.id)].join(","),
+                : [...updatedClass.grantedSkills!.map((s) => s!.id)].join(","),
             'classSkillsIds': updatedClass.classSkills == null
                 ? ''
-                : [...updatedClass.classSkills.map((s) => s.id)].join(","),
+                : [...updatedClass.classSkills!.map((s) => s!.id)].join(","),
             'skillLevelGainAtLevel': updatedClass.skillLevelGainAtLevel,
             'health': updatedClass.health,
             'ep': updatedClass.ep,
@@ -529,8 +536,10 @@ class Classes extends ChangeNotifier {
   //Delete Class
   Future<void> deleteClass(Class c) async {
     //Untested
-    final url =
-        'https://interphaze-pocket-scholar-default-rtdb.firebaseio.com/classes/${c.classId}.json';
+    var url = Uri.https(
+      'interphaze-pocket-scholar-default-rtdb.firebaseio.com',
+      'classes/${c.classId}.json',
+    );
     try {
       final response = await http.delete(url);
       if (response.statusCode >= 400) {

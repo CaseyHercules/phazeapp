@@ -55,17 +55,18 @@ var _editedClassData = [
   <int>[0], //15 Mind Save
 ];
 
-Class _editedClass;
-Class _sourceClass;
+late Class _editedClass;
+Class? _sourceClass;
 List<Skill> _grantedSkillSearchResults = [];
-List<Skill> _grantedSkillList = [];
+List<Skill?>? _grantedSkillList = [];
 var _grantedSkillTextController = TextEditingController();
 List<Skill> _classSkillSearchResults = [];
-List<Skill> _classSkillList = [];
+List<Skill?>? _classSkillList = [];
 var _classSkillTextController = TextEditingController();
 
 void _fetchDataFromServer(BuildContext context) {
-  Provider.of<Skills>(context, listen: false).fetchAndSetSkills();
+  Provider.of<Skills>(context, listen: false)
+      .fetchAndSetSkills(fromOnline: true);
 }
 
 class _EditClassScreenState extends State<EditClassScreen> {
@@ -78,15 +79,16 @@ class _EditClassScreenState extends State<EditClassScreen> {
     _classSkillSearchResults = [];
     _classSkillList = [];
     _classSkillTextController.text = '';
-    final _classId = ModalRoute.of(context).settings.arguments as String;
+    final _classId = ModalRoute.of(context)!.settings.arguments as String?;
     if (_classId != null) {
       _sourceClass =
           Provider.of<Classes>(context, listen: false).findById(_classId);
-      _grantedSkillList =
-          _sourceClass.grantedSkills == null ? [] : _sourceClass.grantedSkills;
-      print(_sourceClass.classSkills == null);
+      _grantedSkillList = _sourceClass!.grantedSkills == null
+          ? []
+          : _sourceClass!.grantedSkills;
+      print(_sourceClass!.classSkills == null);
       _classSkillList =
-          _sourceClass.classSkills == null ? [] : _sourceClass.classSkills;
+          _sourceClass!.classSkills == null ? [] : _sourceClass!.classSkills;
     } else {
       _sourceClass = Class(
         classId: 'New Class',
@@ -111,7 +113,7 @@ class _EditClassScreenState extends State<EditClassScreen> {
   }
 
   Future<void> _saveForm() async {
-    final isValid = _form.currentState.validate();
+    final isValid = _form.currentState!.validate();
     if (!isValid) {
       return;
     }
@@ -119,24 +121,24 @@ class _EditClassScreenState extends State<EditClassScreen> {
       _isLoading = true;
     });
 
-    _form.currentState.save();
+    _form.currentState!.save();
     _editedClass = Class(
-      classId: _sourceClass.classId,
-      isPrimary: _editedClassData[1],
-      title: _editedClassData[2],
-      description: _editedClassData[3],
+      classId: _sourceClass!.classId,
+      isPrimary: _editedClassData[1] as bool?,
+      title: _editedClassData[2] as String?,
+      description: _editedClassData[3] as String?,
       grantedSkills: _grantedSkillList,
       classSkills: _classSkillList,
-      skillLevelGainAtLevel: _editedClassData[6],
-      health: _editedClassData[7],
-      ep: _editedClassData[8],
-      attack: _editedClassData[9],
-      accuracy: _editedClassData[10],
-      defense: _editedClassData[11],
-      resistance: _editedClassData[12],
-      toughSave: _editedClassData[13],
-      quickSave: _editedClassData[14],
-      mindSave: _editedClassData[15],
+      skillLevelGainAtLevel: _editedClassData[6] as List<int>?,
+      health: _editedClassData[7] as List<int>?,
+      ep: _editedClassData[8] as List<int>?,
+      attack: _editedClassData[9] as List<int>?,
+      accuracy: _editedClassData[10] as List<int>?,
+      defense: _editedClassData[11] as List<int>?,
+      resistance: _editedClassData[12] as List<int>?,
+      toughSave: _editedClassData[13] as List<int>?,
+      quickSave: _editedClassData[14] as List<int>?,
+      mindSave: _editedClassData[15] as List<int>?,
     );
 
     try {
@@ -192,7 +194,7 @@ class _EditClassScreenState extends State<EditClassScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'ClassID: ${_sourceClass.classId}',
+                        'ClassID: ${_sourceClass!.classId}',
                         style: Theme.of(context).textTheme.subtitle2,
                       ),
                       Container(
@@ -200,8 +202,8 @@ class _EditClassScreenState extends State<EditClassScreen> {
                         height: 40,
                         child: SwitchListTile(
                           dense: true,
-                          value: _editedClassData[1],
-                          title: Text(_editedClassData[1]
+                          value: _editedClassData[1] as bool,
+                          title: Text(_editedClassData[1] != null
                               ? 'Is a Primary Class'
                               : 'Is a Secondary Class'),
                           onChanged: (bool value) {
@@ -222,19 +224,19 @@ class _EditClassScreenState extends State<EditClassScreen> {
                     textInputAction: TextInputAction.next,
                     keyboardType: TextInputType.text,
                     validator: (value) {
-                      if (value.isEmpty) {
+                      if (value!.isEmpty) {
                         return 'Please provide a value';
                       }
                       return null;
                     },
-                    initialValue: _sourceClass.title,
+                    initialValue: _sourceClass!.title,
                     onSaved: (newValue) {
-                      _editedClassData[2] = newValue;
+                      _editedClassData[2] = newValue!;
                     },
                   ),
                   TextFormField(
                     // Title, Status Testing
-                    initialValue: _sourceClass.description,
+                    initialValue: _sourceClass!.description,
                     decoration: InputDecoration(
                       labelText: 'Class Description',
                     ),
@@ -244,13 +246,13 @@ class _EditClassScreenState extends State<EditClassScreen> {
                     textInputAction: TextInputAction.next,
                     keyboardType: TextInputType.text,
                     validator: (value) {
-                      if (value.isEmpty) {
+                      if (value!.isEmpty) {
                         return 'Please provide a value';
                       }
                       return null;
                     },
                     onSaved: (newValue) {
-                      _editedClassData[3] = newValue;
+                      _editedClassData[3] = newValue!;
                     },
                   ),
                   //Granted Skills
@@ -294,23 +296,23 @@ class _EditClassScreenState extends State<EditClassScreen> {
                                           ? '${_grantedSkillSearchResults[i].title}'
                                           : '${_grantedSkillSearchResults[i].skillGroupName} --> ${_grantedSkillSearchResults[i].title}'),
                                       onTap: () {
-                                        _grantedSkillList
+                                        _grantedSkillList!
                                             .add(_grantedSkillSearchResults[i]);
                                         _grantedSkillTextController.text = '';
                                         _grantedSkillSearchResults = [];
                                         setState(() {});
                                       }))),
                       //VIEWING OF Granted Skills List
-                      _grantedSkillList.length == 0
+                      _grantedSkillList!.length == 0
                           ? SizedBox(
                               height: 0,
                             )
                           : Container(
-                              height: _grantedSkillList.length > 0 ? 60 : 0,
+                              height: _grantedSkillList!.length > 0 ? 60 : 0,
                               child: ListView.builder(
                                   scrollDirection: Axis.horizontal,
                                   //itemExtent: 100,
-                                  itemCount: _grantedSkillList.length,
+                                  itemCount: _grantedSkillList!.length,
                                   itemBuilder: (ctx, i) => Card(
                                       child: Padding(
                                           padding: EdgeInsets.all(5),
@@ -320,13 +322,14 @@ class _EditClassScreenState extends State<EditClassScreen> {
                                                   CrossAxisAlignment.center,
                                               children: [
                                                 SizedBox(width: 5),
-                                                Text(
-                                                    _grantedSkillList[i].title),
+                                                Text(_grantedSkillList![i]!
+                                                    .title!),
                                                 IconButton(
                                                     icon: Icon(Icons.delete),
                                                     onPressed: () {
-                                                      _grantedSkillList.remove(
-                                                          _grantedSkillList[i]);
+                                                      _grantedSkillList!.remove(
+                                                          _grantedSkillList![
+                                                              i]);
                                                       setState(() {});
                                                     })
                                               ]))))),
@@ -373,23 +376,23 @@ class _EditClassScreenState extends State<EditClassScreen> {
                                           ? '${_classSkillSearchResults[i].title}'
                                           : '${_classSkillSearchResults[i].skillGroupName} --> ${_classSkillSearchResults[i].title}'),
                                       onTap: () {
-                                        _classSkillList
+                                        _classSkillList!
                                             .add(_classSkillSearchResults[i]);
                                         _classSkillTextController.text = '';
                                         _classSkillSearchResults = [];
                                         setState(() {});
                                       }))),
                       //VIEWING OF Class Skills List
-                      _classSkillList.length == 0
+                      _classSkillList!.length == 0
                           ? SizedBox(
                               height: 0,
                             )
                           : Container(
-                              height: _classSkillList.length > 0 ? 60 : 0,
+                              height: _classSkillList!.length > 0 ? 60 : 0,
                               child: ListView.builder(
                                   scrollDirection: Axis.horizontal,
                                   //itemExtent: 100,
-                                  itemCount: _classSkillList.length,
+                                  itemCount: _classSkillList!.length,
                                   itemBuilder: (ctx, i) => Card(
                                       child: Padding(
                                           padding: EdgeInsets.all(5),
@@ -399,12 +402,13 @@ class _EditClassScreenState extends State<EditClassScreen> {
                                                   CrossAxisAlignment.center,
                                               children: [
                                                 SizedBox(width: 5),
-                                                Text(_classSkillList[i].title),
+                                                Text(_classSkillList![i]!
+                                                    .title!),
                                                 IconButton(
                                                     icon: Icon(Icons.delete),
                                                     onPressed: () {
-                                                      _classSkillList.remove(
-                                                          _classSkillList[i]);
+                                                      _classSkillList!.remove(
+                                                          _classSkillList![i]);
                                                       setState(() {});
                                                     })
                                               ]))))),
@@ -446,53 +450,53 @@ class _EditClassScreenState extends State<EditClassScreen> {
                               ),
                               RowForm(
                                 title: 'Skill Tier Gained',
-                                inA: _sourceClass.skillLevelGainAtLevel,
-                                outA: _editedClassData[6],
+                                inA: _sourceClass!.skillLevelGainAtLevel,
+                                outA: _editedClassData[6] as List<int>?,
                               ),
                               RowForm(
                                 title: 'Health',
-                                inA: _sourceClass.health,
-                                outA: _editedClassData[7],
+                                inA: _sourceClass!.health,
+                                outA: _editedClassData[7] as List<int>?,
                               ),
                               RowForm(
                                 title: 'Ep',
-                                inA: _sourceClass.ep,
-                                outA: _editedClassData[8],
+                                inA: _sourceClass!.ep,
+                                outA: _editedClassData[8] as List<int>?,
                               ),
                               RowForm(
                                 title: 'Attack',
-                                inA: _sourceClass.attack,
-                                outA: _editedClassData[9],
+                                inA: _sourceClass!.attack,
+                                outA: _editedClassData[9] as List<int>?,
                               ),
                               RowForm(
                                 title: 'Defence',
-                                inA: _sourceClass.defense,
-                                outA: _editedClassData[10],
+                                inA: _sourceClass!.defense,
+                                outA: _editedClassData[10] as List<int>?,
                               ),
                               RowForm(
                                 title: 'Accuracy',
-                                inA: _sourceClass.accuracy,
-                                outA: _editedClassData[11],
+                                inA: _sourceClass!.accuracy,
+                                outA: _editedClassData[11] as List<int>?,
                               ),
                               RowForm(
                                 title: 'Resistance',
-                                inA: _sourceClass.resistance,
-                                outA: _editedClassData[12],
+                                inA: _sourceClass!.resistance,
+                                outA: _editedClassData[12] as List<int>?,
                               ),
                               RowForm(
                                 title: 'Tough Save',
-                                inA: _sourceClass.toughSave,
-                                outA: _editedClassData[13],
+                                inA: _sourceClass!.toughSave,
+                                outA: _editedClassData[13] as List<int>?,
                               ),
                               RowForm(
                                 title: 'Quick Save',
-                                inA: _sourceClass.quickSave,
-                                outA: _editedClassData[14],
+                                inA: _sourceClass!.quickSave,
+                                outA: _editedClassData[14] as List<int>?,
                               ),
                               RowForm(
                                 title: 'Mind Save',
-                                inA: _sourceClass.mindSave,
-                                outA: _editedClassData[15],
+                                inA: _sourceClass!.mindSave,
+                                outA: _editedClassData[15] as List<int>?,
                               ),
                             ],
                           ),
@@ -509,14 +513,14 @@ class _EditClassScreenState extends State<EditClassScreen> {
 
 class RowForm extends StatelessWidget {
   const RowForm({
-    Key key,
-    @required this.title,
-    @required this.inA,
-    @required this.outA,
+    Key? key,
+    required this.title,
+    required this.inA,
+    required this.outA,
   }) : super(key: key);
 
-  final List<int> inA;
-  final List<int> outA;
+  final List<int>? inA;
+  final List<int>? outA;
   final String title;
 
   @override
@@ -651,15 +655,15 @@ class RowForm extends StatelessWidget {
 
 class SingleIntForm extends StatelessWidget {
   const SingleIntForm({
-    Key key,
-    @required this.inA,
-    @required this.lvl,
-    @required this.outA,
+    Key? key,
+    required this.inA,
+    required this.lvl,
+    required this.outA,
   }) : super(key: key);
 
-  final List<int> inA;
+  final List<int>? inA;
   final int lvl;
-  final List<int> outA;
+  final List<int?>? outA;
 
   @override
   Widget build(BuildContext context) {
@@ -669,9 +673,9 @@ class SingleIntForm extends StatelessWidget {
       width: 50,
       child: TextFormField(
         expands: false,
-        initialValue: inA.length < 20
+        initialValue: inA!.length < 20
             ? temp[lvl].toString()
-            : inA[lvl].toString(), // ? should be ''
+            : inA![lvl].toString(), // ? should be ''
         autovalidateMode: AutovalidateMode.onUserInteraction,
         textInputAction: TextInputAction.next,
         keyboardType: TextInputType.number,
@@ -680,7 +684,7 @@ class SingleIntForm extends StatelessWidget {
           isDense: true,
         ),
         validator: (value) {
-          if (value.isEmpty) {
+          if (value!.isEmpty) {
             return '';
           }
           if (int.tryParse(value) == null) {
@@ -689,7 +693,7 @@ class SingleIntForm extends StatelessWidget {
           return null;
         },
         onSaved: (newValue) {
-          outA.add(int.tryParse(newValue));
+          outA!.add(int.tryParse(newValue!));
         },
       ),
     );
@@ -698,8 +702,8 @@ class SingleIntForm extends StatelessWidget {
 
 class SimpleLevelText extends StatelessWidget {
   const SimpleLevelText({
-    Key key,
-    @required this.text,
+    Key? key,
+    required this.text,
   }) : super(key: key);
 
   final String text;

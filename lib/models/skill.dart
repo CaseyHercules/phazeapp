@@ -1,38 +1,44 @@
+import 'dart:developer';
+
+import 'package:collection/collection.dart' show IterableExtension;
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:async';
+import 'dart:io';
 
+import 'package:path_provider/path_provider.dart';
 import '../models/http_exception.dart';
 
 class Skill {
   @required
-  final String id; //Use Id of _all if viewable by all classes
+  final String? id; //Use Id of _all if viewable by all classes
   @required
-  final String title;
+  final String? title;
   @required
-  final String description;
-  final String descriptionShort;
+  final String? description;
+  final String? descriptionShort;
   @required
-  final int tier;
-  final Skill parentSkill;
-  final String skillGroupName;
-  final String skillGroupDescription;
-  final List<Skill> prerequisiteSkills;
-  final List<String> additionalData;
+  final int? tier;
+  final Skill? parentSkill;
+  final String? skillGroupName;
+  final String? skillGroupDescription;
+  final List<Skill?>? prerequisiteSkills;
+  final List<String>? additionalData;
   @required
-  final int permenentEpReduction;
+  final int? permenentEpReduction;
   @required
-  final String epCost;
+  final String? epCost;
   @required
-  final String activation;
+  final String? activation;
   @required
-  final String duration;
+  final String? duration;
   @required
-  final String abilityCheck;
+  final String? abilityCheck;
   @required
-  final bool canBeTakenMultiple;
+  final bool? canBeTakenMultiple;
   @required
-  final bool playerVisable;
+  final bool? playerVisable;
 
   Skill(
       {this.id, //Leave blank
@@ -53,7 +59,7 @@ class Skill {
       this.canBeTakenMultiple,
       this.playerVisable});
 
-  String getId(Skill skill) {
+  String? getId(Skill skill) {
     return this.id;
   }
 
@@ -63,12 +69,13 @@ class Skill {
     print('Desc: $description');
     print('DescS: $descriptionShort');
     print('Tier: $tier');
-    print('Parent: ${parentSkill == null ? 'None' : parentSkill.title}');
+    print('Parent: ${parentSkill == null ? 'None' : parentSkill!.title}');
     print('Skill Group: $skillGroupName');
     print('Skill Group Desc: $skillGroupDescription');
-    (prerequisiteSkills == null || prerequisiteSkills.length == 0)
+    (prerequisiteSkills == null || prerequisiteSkills!.length == 0)
         ? print('Preq: None')
-        : prerequisiteSkills.forEach((skill) => print('Preq: ${skill.title}'));
+        : prerequisiteSkills!
+            .forEach((skill) => print('Preq: ${skill!.title}'));
     print('pEpRedux: $permenentEpReduction');
     print('Ep Cost: $epCost');
     print('Activation: $activation');
@@ -87,11 +94,15 @@ class Skills with ChangeNotifier {
     return [..._skills];
   }
 
-  Skill findById(String id) {
+  int count() {
+    return _skills.length;
+  }
+
+  Skill? findById(String? id) {
     if (id == null || id == '') {
       return null;
     }
-    return _skills.firstWhere((skill) => skill.id == id, orElse: () => null);
+    return _skills.firstWhereOrNull((skill) => skill.id == id);
   } //Tested Works
 
   List<Skill> skillsWithTitle(String title, [int results = 5]) {
@@ -100,12 +111,12 @@ class Skills with ChangeNotifier {
       return [];
     }
     for (int i = 0; i < _skills.length; i++) {
-      if (_skills[i].title.toLowerCase().contains(title.toLowerCase()) ||
+      if (_skills[i].title!.toLowerCase().contains(title.toLowerCase()) ||
           ((_skills[i].skillGroupName == null ||
                   _skills[i].skillGroupName == '')
               ? false
               : _skills[i]
-                  .skillGroupName
+                  .skillGroupName!
                   .toLowerCase()
                   .contains(title.toLowerCase()))) {
         _searchedSkills.add(_skills[i]);
@@ -117,19 +128,47 @@ class Skills with ChangeNotifier {
     return _searchedSkills;
   } //Tested, Seems to Work
 
-  Future<void> fetchAndSetSkills() async {
-    const url =
-        'https://interphaze-pocket-scholar-default-rtdb.firebaseio.com/skills.json';
+  Future<void> fetchAndSetSkills({
+    bool fromOnline = false,
+    bool forceRefresh = false,
+  }) async {
+    Map<String, dynamic>? container;
+    bool _skillsSet = false;
+    if (kIsWeb) {
+      fromOnline = true;
+    } else {
+      try {
+        readSkills();
+        _skillsSet = true;
+      } catch (error) {
+        _skillsSet = false;
+      }
+    }
+
     try {
-      final response = await http.get(url);
-      final extractedData = json.decode(response.body) as Map<String, dynamic>;
+      if (fromOnline || forceRefresh || (!_skillsSet)) {
+        var url = Uri.https(
+          'interphaze-pocket-scholar-default-rtdb.firebaseio.com',
+          'skills.json',
+        );
+        final response = await http.get(url);
+        container = json.decode(response.body) as Map<String, dynamic>?;
+        if (!kIsWeb) {
+          await writeSkills();
+        }
+      } else {
+        final response = await readSkills();
+        container = json.decode(response) as Map<String, dynamic>?;
+      }
+
+      final extractedData = container;
+
       List<Skill> loadedSkills = [];
       if (extractedData == null) {
         return;
       }
 
       extractedData.forEach((id, skill) {
-        print(skill['additionalData']);
         //First Run, MUST RUN TWICE FOR EDGE CASE
         //Where prerequisiteSkill isn't loaded, so find by ID returns null
         //But On loading this pile of skills,
@@ -197,21 +236,39 @@ class Skills with ChangeNotifier {
           ),
         );
       });
-      _skills.forEach((s) {
-        s.printSkill();
-      });
+      // _skills.forEach((s) {
+      //   s.printSkill();
+      // });
       _skills = loadedSkills;
       loadedSkills = [];
       notifyListeners();
     } catch (error) {
-      print(error);
+      print('Error State $error');
       throw (error);
     }
   }
 
+  Future<String> printSkillJSON() async {
+    var url = Uri.https(
+      'interphaze-pocket-scholar-default-rtdb.firebaseio.com',
+      'skills.json',
+    );
+
+    try {
+      final response = await http.get(url);
+      //print('Responce @ printSkillJSON(): ${response.body}');
+      return response.body;
+    } catch (error) {
+      print('Error @ printSkillJSON(): $error');
+      return error.toString();
+    }
+  }
+
   Future<void> addSkill(Skill skill, [bool atTop = true]) async {
-    const url =
-        'https://interphaze-pocket-scholar-default-rtdb.firebaseio.com/skills.json';
+    var url = Uri.https(
+      'interphaze-pocket-scholar-default-rtdb.firebaseio.com',
+      'skills.json',
+    );
     try {
       final response = await http.post(
         url,
@@ -222,12 +279,12 @@ class Skills with ChangeNotifier {
             'descriptionShort': skill.descriptionShort,
             'tier': skill.tier,
             'parentSkillId':
-                skill.parentSkill == null ? '' : skill.parentSkill.id,
+                skill.parentSkill == null ? '' : skill.parentSkill!.id,
             'skillGroupName': skill.skillGroupName,
             'skillGroupDescription': skill.skillGroupDescription,
             'prerequisiteSkillsIds': skill.prerequisiteSkills == null
                 ? ''
-                : [...skill.prerequisiteSkills.map((s) => s.id)].join(","),
+                : [...skill.prerequisiteSkills!.map((s) => s!.id)].join(","),
             'permenentEpReduction': skill.permenentEpReduction,
             'epCost': skill.epCost,
             'activation': skill.activation,
@@ -251,8 +308,10 @@ class Skills with ChangeNotifier {
   Future<void> updateSkill(Skill updatedSkill) async {
     //Untested
     print('ID: ${updatedSkill.id}');
-    final url =
-        'https://interphaze-pocket-scholar-default-rtdb.firebaseio.com/skills/${updatedSkill.id}.json';
+    var url = Uri.https(
+      'interphaze-pocket-scholar-default-rtdb.firebaseio.com',
+      'skills/${updatedSkill.id}.json',
+    );
     try {
       final response = await http.patch(
         url,
@@ -264,12 +323,12 @@ class Skills with ChangeNotifier {
             'tier': updatedSkill.tier,
             'parentSkillId': updatedSkill.parentSkill == null
                 ? ''
-                : updatedSkill.parentSkill.id,
+                : updatedSkill.parentSkill!.id,
             'skillGroupName': updatedSkill.skillGroupName,
             'skillGroupDescription': updatedSkill.skillGroupDescription,
             'prerequisiteSkillsIds': updatedSkill.prerequisiteSkills == null
                 ? ''
-                : [...updatedSkill.prerequisiteSkills.map((s) => s.id)]
+                : [...updatedSkill.prerequisiteSkills!.map((s) => s!.id)]
                     .join(","),
             'permenentEpReduction': updatedSkill.permenentEpReduction,
             'epCost': updatedSkill.epCost,
@@ -293,8 +352,10 @@ class Skills with ChangeNotifier {
 
   Future<void> deleteSkill(Skill skill) async {
     //Untested
-    final url =
-        'https://interphaze-pocket-scholar-default-rtdb.firebaseio.com/skills/${skill.id}.json';
+    var url = Uri.https(
+      'interphaze-pocket-scholar-default-rtdb.firebaseio.com',
+      'skills/${skill.id}.json',
+    );
     try {
       final response = await http.delete(url);
       if (response.statusCode >= 400) {
@@ -306,6 +367,50 @@ class Skills with ChangeNotifier {
     } finally {
       _skills.removeAt(_skills.indexWhere((s) => s.id == skill.id));
       notifyListeners();
+    }
+  }
+
+  //Storage Stuff
+  Future<String> get _localPath async {
+    print('Attempting to get LocalPath');
+    final directory = await getApplicationDocumentsDirectory();
+    print('LocalPath: ${directory.path}');
+    return directory.path;
+  }
+
+  Future<File> get _localFile async {
+    print('Attempting to get LocalFile');
+    final path = await _localPath;
+    return File('$path/skills.json');
+  }
+
+  Future<File> writeSkills() async {
+    print('Attempting to access skills.json LocalFile');
+    final file = await _localFile;
+    return file.writeAsString(await printSkillJSON());
+  }
+
+  bool isFile() {
+    try {
+      readSkills();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  void deleteFile() async {
+    final file = await _localFile;
+    file.delete();
+  }
+
+  Future<String> readSkills() async {
+    try {
+      final file = await _localFile;
+      String contents = await file.readAsString();
+      return contents;
+    } catch (error) {
+      return error.toString();
     }
   }
 

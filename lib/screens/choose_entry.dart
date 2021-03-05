@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import '../widgets/skill_search_bar.dart';
 import '../widgets/class_search_bar.dart';
 
+import 'package:provider/provider.dart';
+
+import '../models/skill.dart';
+import '../models/class.dart';
+
 // Needs To Pull data from server and not phone
 var _titleBarText = 'Edit or Add Skills';
 
@@ -26,6 +31,8 @@ class ChooseEntry extends StatefulWidget {
 class _ChooseEntryState extends State<ChooseEntry> {
   @override
   Widget build(BuildContext context) {
+    Provider.of<Skills>(context, listen: false).fetchAndSetSkills();
+    Provider.of<Classes>(context, listen: false).fetchAndSetClasses(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(_titleBarText),
