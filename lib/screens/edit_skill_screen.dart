@@ -475,9 +475,8 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                         IconButton(
                             icon: Icon(Icons.add),
                             onPressed: () {
-                              if (_additionalDataController.text != null)
-                                _additionalDataList
-                                    .add(_additionalDataController.text);
+                              _additionalDataList
+                                  .add(_additionalDataController.text);
                               _additionalDataController.text = '';
                               setState(() {});
                             })
@@ -534,9 +533,7 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                       }
                       return null;
                     },
-                    initialValue: _sourceSkill!.permenentEpReduction == null
-                        ? ''
-                        : _sourceSkill!.permenentEpReduction.toString(),
+                    initialValue: _sourceSkill!.permenentEpReduction.toString(),
                     onSaved: (newValue) {
                       _editedSkillData[8] = int.parse(newValue!);
                     },

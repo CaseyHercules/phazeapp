@@ -63,17 +63,21 @@ class _SkillListScreenState extends State<SkillListScreen> {
     return Scaffold(
         appBar: AppBar(
           title: Text('Skill List Page'),
-          actions: [
-            IconButton(
-                icon: Icon(Icons.update), onPressed: () => _fetchData(context)),
-          ],
+          // actions: [
+          //   IconButton(
+          //       icon: Icon(Icons.update), onPressed: () => _fetchData(context)),
+          // ],
         ),
         body: _isLoading
             ? Center(
                 child: CircularProgressIndicator(),
               )
             : _testing
-                ? SkillGroupsViewWidget(allSkills: skills)
+                ? SingleChildScrollView(
+                    child: Container(
+                        height: MediaQuery.of(context).size.height,
+                        child: SkillGroupsViewWidget(allSkills: skills)),
+                  )
                 : ListView.builder(
                     itemCount: skills.length,
                     itemBuilder: (ctx, i) => SkillViewWidget(s: skills[i])));
@@ -107,14 +111,46 @@ class SkillGroupsViewWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('Hello: ${allSkills.where((s) => s.skillGroupName == '1').length}');
     //Process Skills into skill groups
     final List skillGroups = _processSkills(allSkills);
     print(skillGroups);
     return ListView.builder(
-        itemCount: skillGroups.length,
-        itemBuilder: (ctx, i) => ExpansionTile(
+      shrinkWrap: true,
+      itemCount: skillGroups.length,
+      itemBuilder: (ctx, i) => (allSkills
+                  .where((s) =>
+                      s.skillGroupName == skillGroups[i] ||
+                      s.title == skillGroups[i])
+                  .length ==
+              1)
+          ? ExpansionTile(
+              title: Text(
+                  allSkills.firstWhere((s) => skillGroups[i] == s.title).title),
+              children: [], //Draw Skill
+            )
+          : ExpansionTile(
               title: Text(skillGroups[i]),
-              children: [Text('hello')],
-            ));
+              children: [
+                ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: allSkills
+                      .where((s) =>
+                          s.skillGroupName == skillGroups[i] ||
+                          s.title == skillGroups[i])
+                      .length,
+                  itemBuilder: (ctx, j) => ExpansionTile(
+                    title: Text(allSkills
+                        .where((s) =>
+                            s.skillGroupName == skillGroups[i] ||
+                            s.title == skillGroups[i])
+                        .elementAt(j)
+                        .title),
+                    children: [], //Draw Skill
+                  ),
+                )
+              ],
+            ),
+    );
   }
 }
