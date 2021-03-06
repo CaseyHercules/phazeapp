@@ -203,7 +203,7 @@ class _EditClassScreenState extends State<EditClassScreen> {
                         child: SwitchListTile(
                           dense: true,
                           value: _editedClassData[1] as bool,
-                          title: Text(_editedClassData[1] != null
+                          title: Text(_editedClassData[1] == true
                               ? 'Is a Primary Class'
                               : 'Is a Secondary Class'),
                           onChanged: (bool value) {
@@ -323,7 +323,7 @@ class _EditClassScreenState extends State<EditClassScreen> {
                                               children: [
                                                 SizedBox(width: 5),
                                                 Text(_grantedSkillList![i]!
-                                                    .title!),
+                                                    .title),
                                                 IconButton(
                                                     icon: Icon(Icons.delete),
                                                     onPressed: () {
@@ -402,8 +402,8 @@ class _EditClassScreenState extends State<EditClassScreen> {
                                                   CrossAxisAlignment.center,
                                               children: [
                                                 SizedBox(width: 5),
-                                                Text(_classSkillList![i]!
-                                                    .title!),
+                                                Text(
+                                                    _classSkillList![i]!.title),
                                                 IconButton(
                                                     icon: Icon(Icons.delete),
                                                     onPressed: () {

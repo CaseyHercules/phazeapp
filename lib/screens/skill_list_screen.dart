@@ -6,7 +6,33 @@ import '../models/class.dart';
 
 late List<Skill> skills;
 bool _isLoading = true;
-var length = 0;
+bool _testing = true;
+
+Future<void> _fetchData(BuildContext context) async {
+  Provider.of<Skills>(context, listen: false).fetchAndSetSkills().then(
+      (value) => skills = Provider.of<Skills>(context, listen: false).skills);
+  Provider.of<Classes>(context, listen: false).fetchAndSetClasses(context);
+}
+
+List _processSkills(List<Skill> s) {
+  var skillGroups = [];
+
+  //Separate Skills into Skill Groups
+  s.forEach((s) {
+    if (s.skillGroupName == null || s.skillGroupName == '') {
+      skillGroups.add(s.title);
+    } else {
+      if (!(skillGroups.contains(s.skillGroupName))) {
+        skillGroups.add(s.skillGroupName);
+      }
+    }
+  });
+  print('Skill Group Lenght: ${skillGroups.length}');
+  skillGroups.forEach((s) {
+    print('$s');
+  });
+  return skillGroups;
+}
 
 class SkillListScreen extends StatefulWidget {
   static const routeName = '/skill-list';
@@ -17,23 +43,23 @@ class SkillListScreen extends StatefulWidget {
 
 class _SkillListScreenState extends State<SkillListScreen> {
   @override
-  void didChangeDependencies() {
-    _fetchData(context).then((value) {
-      _isLoading = false;
-      setState(() {});
-    });
-    super.didChangeDependencies();
-  }
-
-  Future<void> _fetchData(BuildContext context) async {
-    Provider.of<Skills>(context, listen: false).fetchAndSetSkills().then(
-        (value) => skills = Provider.of<Skills>(context, listen: false).skills);
-    Provider.of<Classes>(context, listen: false).fetchAndSetClasses(context);
-  }
+  // void didChangeDependencies() {
+  //   _fetchData(context).then((value) {
+  //     setState(() {});
+  //   });
+  //   super.didChangeDependencies();
+  // }
 
   @override
   Widget build(BuildContext context) {
-    print('build');
+    try {
+      print(skills.length);
+      _isLoading = false;
+    } catch (e) {
+      _fetchData(context).then((value) {
+        setState(() {});
+      });
+    }
     return Scaffold(
         appBar: AppBar(
           title: Text('Skill List Page'),
@@ -46,7 +72,49 @@ class _SkillListScreenState extends State<SkillListScreen> {
             ? Center(
                 child: CircularProgressIndicator(),
               )
-            : ListView.builder(
-                itemCount: length, itemBuilder: (ctx, i) => SizedBox()));
+            : _testing
+                ? SkillGroupsViewWidget(allSkills: skills)
+                : ListView.builder(
+                    itemCount: skills.length,
+                    itemBuilder: (ctx, i) => SkillViewWidget(s: skills[i])));
+  }
+}
+
+class SkillViewWidget extends StatelessWidget {
+  const SkillViewWidget({
+    Key? key,
+    required this.s,
+  }) : super(key: key);
+
+  final Skill s;
+
+  @override
+  Widget build(BuildContext context) {
+    return ExpansionTile(
+        title: Text(s.title),
+        subtitle:
+            s.skillGroupName == null ? Text('') : Text(s.skillGroupName!));
+  }
+}
+
+class SkillGroupsViewWidget extends StatelessWidget {
+  SkillGroupsViewWidget({
+    Key? key,
+    required this.allSkills,
+  }) : super(key: key);
+
+  final List<Skill> allSkills;
+
+  @override
+  Widget build(BuildContext context) {
+    //Process Skills into skill groups
+    final List skillGroups = _processSkills(allSkills);
+    print(skillGroups);
+    return ListView.builder(
+        itemCount: skillGroups.length,
+        itemBuilder: (ctx, i) => ExpansionTile(
+              title: Text(skillGroups[i]),
+              children: [Text('hello')],
+            ));
   }
 }

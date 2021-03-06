@@ -65,12 +65,8 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
       _prerequisiteSkillList = _sourceSkill!.prerequisiteSkills == null
           ? []
           : _sourceSkill!.prerequisiteSkills;
-      _editedSkillData[13] = (_sourceSkill!.canBeTakenMultiple == null
-          ? false
-          : _sourceSkill!.canBeTakenMultiple)!;
-      _editedSkillData[14] = (_sourceSkill!.playerVisable == null
-          ? true
-          : _sourceSkill!.playerVisable)!;
+      _editedSkillData[13] = _sourceSkill!.canBeTakenMultiple;
+      _editedSkillData[14] = _sourceSkill!.playerVisable;
       _editedSkillData[16] = (_sourceSkill!.additionalData == null
           ? []
           : _sourceSkill!.additionalData)!;
@@ -80,18 +76,18 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
         title: '',
         description: '',
         descriptionShort: '',
-        tier: null,
+        tier: 0,
         parentSkill: null,
         skillGroupName: '',
         skillGroupDescription: '',
         prerequisiteSkills: null,
-        permenentEpReduction: null,
+        permenentEpReduction: 0,
         epCost: '',
         activation: '',
         duration: '',
         abilityCheck: '',
-        canBeTakenMultiple: _editedSkillData[13] as bool?,
-        playerVisable: _editedSkillData[14] as bool?,
+        canBeTakenMultiple: _editedSkillData[13] as bool,
+        playerVisable: _editedSkillData[14] as bool,
         additionalData: [],
       );
     }
@@ -108,21 +104,21 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
 
     _editedSkill = Skill(
       id: _sourceSkill!.id,
-      title: _editedSkillData[1] as String?,
-      description: _editedSkillData[2] as String?,
+      title: _editedSkillData[1] as String,
+      description: _editedSkillData[2] as String,
       descriptionShort: _editedSkillData[3] as String?,
-      tier: _editedSkillData[4] as int?,
+      tier: _editedSkillData[4] as int,
       parentSkill: _parentSkill,
       skillGroupName: _editedSkillData[6] as String?,
       skillGroupDescription: _editedSkillData[15] as String?,
       prerequisiteSkills: _prerequisiteSkillList,
-      permenentEpReduction: _editedSkillData[8] as int?,
-      epCost: _editedSkillData[9] as String?,
-      activation: _editedSkillData[10] as String?,
-      duration: _editedSkillData[11] as String?,
-      abilityCheck: _editedSkillData[12] as String?,
-      canBeTakenMultiple: _editedSkillData[13] as bool?,
-      playerVisable: _editedSkillData[14] as bool?,
+      permenentEpReduction: _editedSkillData[8] as int,
+      epCost: _editedSkillData[9] as String,
+      activation: _editedSkillData[10] as String,
+      duration: _editedSkillData[11] as String,
+      abilityCheck: _editedSkillData[12] as String,
+      canBeTakenMultiple: _editedSkillData[13] as bool,
+      playerVisable: _editedSkillData[14] as bool,
       additionalData: _additionalDataList,
     );
 
@@ -273,9 +269,7 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                       }
                       return null;
                     },
-                    initialValue: _sourceSkill!.tier == null
-                        ? ''
-                        : _sourceSkill!.tier.toString(),
+                    initialValue: _sourceSkill!.tier.toString(),
                     onSaved: (newValue) {
                       _editedSkillData[4] = int.parse(newValue!);
                     },
@@ -323,7 +317,7 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                                     onTap: () {
                                       _parentSkill = _parentSearchResults[i];
                                       _parentSkillTextController.text =
-                                          _parentSearchResults[i].title!;
+                                          _parentSearchResults[i].title;
                                       _parentSearchResults = [];
                                       setState(() {});
                                     }),
@@ -446,8 +440,7 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                                           CrossAxisAlignment.center,
                                       children: [
                                         SizedBox(width: 5),
-                                        Text(
-                                            _prerequisiteSkillList![i]!.title!),
+                                        Text(_prerequisiteSkillList![i]!.title),
                                         IconButton(
                                             icon: Icon(Icons.delete),
                                             onPressed: () {

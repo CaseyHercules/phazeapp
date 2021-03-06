@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:collection/collection.dart' show IterableExtension;
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -12,52 +10,52 @@ import '../models/http_exception.dart';
 
 class Skill {
   @required
-  final String? id; //Use Id of _all if viewable by all classes
+  String id; //Use Id of _all if viewable by all classes
   @required
-  final String? title;
+  String title;
   @required
-  final String? description;
-  final String? descriptionShort;
+  String description;
+  String? descriptionShort;
   @required
-  final int? tier;
-  final Skill? parentSkill;
-  final String? skillGroupName;
-  final String? skillGroupDescription;
-  final List<Skill?>? prerequisiteSkills;
-  final List<String>? additionalData;
+  int tier;
+  Skill? parentSkill;
+  String? skillGroupName;
+  String? skillGroupDescription;
+  List<Skill?>? prerequisiteSkills;
+  List<String>? additionalData;
   @required
-  final int? permenentEpReduction;
+  int permenentEpReduction;
   @required
-  final String? epCost;
+  String epCost;
   @required
-  final String? activation;
+  String activation;
   @required
-  final String? duration;
+  String duration;
   @required
-  final String? abilityCheck;
+  String abilityCheck;
   @required
-  final bool? canBeTakenMultiple;
+  bool canBeTakenMultiple;
   @required
-  final bool? playerVisable;
+  bool playerVisable;
 
   Skill(
-      {this.id, //Leave blank
-      this.title,
-      this.description,
+      {this.id = '', //Leave blank
+      this.title = '',
+      this.description = '',
       this.descriptionShort,
-      this.tier,
+      this.tier = 0,
       this.parentSkill,
       this.skillGroupName,
       this.skillGroupDescription,
       this.prerequisiteSkills,
       this.additionalData,
-      this.permenentEpReduction,
-      this.epCost,
-      this.activation,
-      this.duration,
-      this.abilityCheck,
-      this.canBeTakenMultiple,
-      this.playerVisable});
+      this.permenentEpReduction = 0,
+      this.epCost = '',
+      this.activation = '',
+      this.duration = '',
+      this.abilityCheck = '',
+      this.canBeTakenMultiple = false,
+      this.playerVisable = false});
 
   String? getId(Skill skill) {
     return this.id;
@@ -94,6 +92,10 @@ class Skills with ChangeNotifier {
     return [..._skills];
   }
 
+  int get length {
+    return _skills.length;
+  }
+
   int count() {
     return _skills.length;
   }
@@ -107,11 +109,11 @@ class Skills with ChangeNotifier {
 
   List<Skill> skillsWithTitle(String title, [int results = 5]) {
     List<Skill> _searchedSkills = [];
-    if (title == '' || title == null) {
+    if (title == '') {
       return [];
     }
     for (int i = 0; i < _skills.length; i++) {
-      if (_skills[i].title!.toLowerCase().contains(title.toLowerCase()) ||
+      if (_skills[i].title.toLowerCase().contains(title.toLowerCase()) ||
           ((_skills[i].skillGroupName == null ||
                   _skills[i].skillGroupName == '')
               ? false

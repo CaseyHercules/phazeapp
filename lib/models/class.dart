@@ -371,7 +371,7 @@ class Classes extends ChangeNotifier {
   } //Not Tested
 
   Class? findById(String id) {
-    if (id == null || id == '') {
+    if (id == '') {
       return null;
     }
     return _classes.firstWhereOrNull((c) => c.classId == id);
@@ -379,7 +379,7 @@ class Classes extends ChangeNotifier {
 
   List<Class> classesWithTitle(String title, [int results = 5]) {
     List<Class> _searchedClasses = [];
-    if (title == '' || title == null) {
+    if (title == '') {
       return [];
     }
     for (int i = 0; i < _classes.length; i++) {
