@@ -139,12 +139,9 @@ class Skills with ChangeNotifier {
     if (kIsWeb) {
       fromOnline = true;
     } else {
-      try {
-        readSkills();
-        _skillsSet = true;
-      } catch (error) {
-        _skillsSet = false;
-      }
+      print('Checking if Can Read Skills');
+      print('Validate: ${(await validateSkillsFile()).toString()}');
+      _skillsSet = await validateSkillsFile();
     }
 
     try {
@@ -156,6 +153,7 @@ class Skills with ChangeNotifier {
         final response = await http.get(url);
         container = json.decode(response.body) as Map<String, dynamic>?;
         if (!kIsWeb) {
+          print('Trying to Write Skills');
           await writeSkills();
         }
       } else {
@@ -246,7 +244,7 @@ class Skills with ChangeNotifier {
       notifyListeners();
     } catch (error) {
       print('Error State $error');
-      throw (error);
+      //throw (error);
     }
   }
 
@@ -374,27 +372,29 @@ class Skills with ChangeNotifier {
 
   //Storage Stuff
   Future<String> get _localPath async {
-    print('Attempting to get LocalPath');
+    //print('Attempting to get LocalPath');
     final directory = await getApplicationDocumentsDirectory();
-    print('LocalPath: ${directory.path}');
+    //print('LocalPath: ${directory.path}');
     return directory.path;
   }
 
   Future<File> get _localFile async {
-    print('Attempting to get LocalFile');
+    //print('Attempting to get LocalFile');
     final path = await _localPath;
     return File('$path/skills.json');
   }
 
   Future<File> writeSkills() async {
-    print('Attempting to access skills.json LocalFile');
+    //print('Attempting to access skills.json LocalFile');
     final file = await _localFile;
+    print('Writing Skills');
     return file.writeAsString(await printSkillJSON());
   }
 
-  bool isFile() {
+  Future<bool> validateSkillsFile() async {
     try {
-      readSkills();
+      final response = await readSkills();
+      json.decode(response) as Map<String, dynamic>?;
       return true;
     } catch (e) {
       return false;
@@ -402,6 +402,7 @@ class Skills with ChangeNotifier {
   }
 
   void deleteFile() async {
+    print('Deleteing Skill File');
     final file = await _localFile;
     file.delete();
   }

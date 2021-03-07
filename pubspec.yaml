@@ -54,6 +54,7 @@ flutter:
   assets:
     - assets/images/
     - assets/data/
+    - assets/fonts/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
@@ -66,17 +67,44 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
-  #   - family: Trajan Pro
-  #     fonts:
-  #       - asset: fonts/TrajanPro.ttf
-  #       - asset: fonts/TrajanPro_Bold.ttf
-  #         weight: 700
+  fonts:
+    - family: OpenSans
+      fonts:
+        - asset: assets/fonts/Open_Sans/OpenSans-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Open_Sans/OpenSans-BoldItalic.ttf
+          style: italic
+          weight: 700
+        - asset: assets/fonts/Open_Sans/OpenSans-ExtraBold.ttf
+          weight: 800
+        - asset: assets/fonts/Open_Sans/OpenSans-ExtraBoldItalic.ttf
+          style: italic
+          weight: 800
+        - asset: assets/fonts/Open_Sans/OpenSans-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Open_Sans/OpenSans-SemiBoldItalic.ttf
+          style: italic
+          weight: 600
+        - asset: assets/fonts/Open_Sans/OpenSans-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Open_Sans/OpenSans-LightItalic.ttf
+          style: italic
+          weight: 300
+        - asset: assets/fonts/Open_Sans/OpenSans-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Open_Sans/OpenSans-Italic.ttf
+          style: italic
+          weight: 400
+    - family: Gentium Book Basic
+      fonts:
+        - asset: assets/fonts/Gentium_Book_Basic/GentiumBookBasic-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Gentium_Book_Basic/GentiumBookBasic-BoldItalic.ttf
+          style: italic
+          weight: 700
+        - asset: assets/fonts/Gentium_Book_Basic/GentiumBookBasic-Italic.ttf
+          style: italic
+        - asset: assets/fonts/Gentium_Book_Basic/GentiumBookBasic-Regular.ttf
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages

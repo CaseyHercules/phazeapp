@@ -42,6 +42,7 @@ class _PhazeAppState extends State<PhazeApp> {
           primaryColor: Colors.cyan[100],
           accentColor: Colors.blueGrey[900],
           backgroundColor: Colors.grey[50],
+          fontFamily: 'Gentium Book Basic',
           textTheme: TextTheme(
             headline6: TextStyle(
               color: Colors.black,
@@ -60,7 +61,12 @@ class _PhazeAppState extends State<PhazeApp> {
           primaryColor: Colors.amber,
           accentColor: Colors.grey[100],
           backgroundColor: Colors.grey[900],
+          fontFamily: 'Gentium Book Basic',
           textTheme: TextTheme(
+            headline4: TextStyle(
+                color: Colors.white,
+                fontSize: 30,
+                fontFamily: 'Gentium Book Basic'),
             headline5: TextStyle(
               color: Colors.black,
               fontSize: 16,
@@ -78,14 +84,14 @@ class _PhazeAppState extends State<PhazeApp> {
             ),
             subtitle1: TextStyle(
               //Text on form size
-              color: Colors.white70,
+              color: Colors.white,
               fontSize: 18,
               // fontFamily:
             ),
           ),
           //inputDecorationTheme:
         ),
-        themeMode: ThemeMode.dark, //currentTheme.currentTheme(),
+        themeMode: ThemeMode.light, //currentTheme.currentTheme(),
         initialRoute: LandingScreen.routeName,
         home: LandingScreen(),
         routes: {

@@ -10,8 +10,13 @@ import '../models/class.dart';
 //Needs to Check if connect
 
 void _fetchDataFromServer(BuildContext context) {
-  Provider.of<Skills>(context, listen: false).fetchAndSetSkills();
-  Provider.of<Classes>(context, listen: false).fetchAndSetClasses(context);
+  try {
+    Provider.of<Skills>(context, listen: false)
+        .fetchAndSetSkills(forceRefresh: false);
+    Provider.of<Classes>(context, listen: false).fetchAndSetClasses(context);
+  } catch (e) {
+    print(e);
+  }
 }
 
 class LandingScreen extends StatelessWidget {
