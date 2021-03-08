@@ -147,7 +147,10 @@ class SkillGroupsViewWidget extends StatelessWidget {
                       ''))
           ? ExpansionTile(
               title: Text(
-                  allSkills.firstWhere((s) => skillGroups[i] == s.title).title),
+                allSkills.firstWhere((s) => skillGroups[i] == s.title).title,
+                style: Theme.of(context).textTheme.headline6,
+              ),
+              collapsedBackgroundColor: Theme.of(context).backgroundColor,
               children: [
                 RenderSkillWidget(
                   skill: allSkills.firstWhere((s) => skillGroups[i] == s.title),
@@ -155,7 +158,12 @@ class SkillGroupsViewWidget extends StatelessWidget {
               ], //Draw Skill
             )
           : ExpansionTile(
-              title: Text(skillGroups[i]),
+              title: Text(
+                skillGroups[i],
+                style: Theme.of(context).textTheme.headline6,
+              ),
+              collapsedBackgroundColor: Theme.of(context).backgroundColor,
+              //backgroundColor: Theme.of(context).backgroundColor,
               children: [
                 (allSkills
                                 .where((s) =>
@@ -189,37 +197,22 @@ class SkillGroupsViewWidget extends StatelessWidget {
                           s.skillGroupName == skillGroups[i] ||
                           s.title == skillGroups[i])
                       .length,
-                  itemBuilder: (ctx, j) => ExpansionTile(
-                    // leading: SizedBox(
-                    //   width: 10,
-                    // ),
-                    title: Text(
-                      '   Tier ' +
-                          allSkills
+                  itemBuilder: (ctx, j) {
+                    return Column(
+                      children: [
+                        RenderSkillWidget(
+                          skill: allSkills
                               .where((s) =>
                                   s.skillGroupName == skillGroups[i] ||
                                   s.title == skillGroups[i])
-                              .elementAt(j)
-                              .tier
-                              .toString() +
-                          ' - ' +
-                          allSkills
-                              .where((s) =>
-                                  s.skillGroupName == skillGroups[i] ||
-                                  s.title == skillGroups[i])
-                              .elementAt(j)
-                              .title,
-                    ),
-                    children: [
-                      RenderSkillWidget(
-                        skill: allSkills
-                            .where((s) =>
-                                s.skillGroupName == skillGroups[i] ||
-                                s.title == skillGroups[i])
-                            .elementAt(j),
-                      )
-                    ], //Draw Skill
-                  ),
+                              .elementAt(j),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+                SizedBox(
+                  height: 10,
                 )
               ],
             ),
@@ -253,20 +246,23 @@ class RenderSkillWidget extends StatelessWidget {
               children: [
                 ListTile(
                   title: Text(
-                    skill.tier.toString() + ' - ' + skill.title.toString(),
+                    'Tier ' +
+                        skill.tier.toString() +
+                        ' - ' +
+                        skill.title.toString(),
                     style: Theme.of(context).textTheme.headline4,
                   ),
                   dense: true,
                 ),
                 ListTile(
                   title: Text(
-                    skill.description,
+                    '    ' + skill.description,
                     style: Theme.of(context).textTheme.subtitle1,
                   ),
                   dense: true,
                 ),
                 SizedBox(
-                  height: 20,
+                  height: 5,
                 ),
                 ListTile(
                   // Cost
@@ -327,6 +323,9 @@ class RenderSkillWidget extends StatelessWidget {
                   ),
                   dense: true,
                 ),
+                SizedBox(
+                  height: 20,
+                )
               ],
             ),
           );
