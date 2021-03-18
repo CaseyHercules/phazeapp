@@ -6,7 +6,7 @@ import '../models/class.dart';
 
 late List<Skill> skills;
 bool _isLoading = true;
-bool _testing = true;
+//bool _testing = true;
 
 Future<void> _fetchData(BuildContext context) async {
   try {
@@ -33,10 +33,24 @@ List _processSkills(List<Skill> s) {
       }
     }
   });
-  // print('Skill Group Lenght: ${skillGroups.length}');
-  // skillGroups.forEach((s) {
-  //   print('$s');
-  // });
+  return skillGroups;
+}
+
+List _processChildSkills(List<Skill> s) {
+  var skillGroups = [];
+  //Removes Skills With Parent Skills from Group
+  //Separate Skills into Skill Groups
+  s.forEach((s) {
+    if (s.parentSkill != null) {
+      if (s.skillGroupName == null || s.skillGroupName == '') {
+        skillGroups.add(s.title);
+      } else {
+        if (!(skillGroups.contains(s.skillGroupName))) {
+          skillGroups.add(s.skillGroupName);
+        }
+      }
+    }
+  });
   return skillGroups;
 }
 
@@ -134,11 +148,11 @@ class SkillGroupsViewWidget extends StatelessWidget {
                           .id))
                   .length !=
               0)
-          //? Text('Boop')
           // Test for if skill has parent Skill, then ignores them
           // Logic, Get List of All Skill that have a parent, Then, Return an array of skills' parent skill ids that match the id of the current Skill being Checked.
           // ID: (allSkills.where((s) => (s.skillGroupName == skillGroups[i] || s.title == skillGroups[i]) && s.parentSkill == null).first.id)
           ? ExpansionTile(
+              //Render Parent and Children Group of Skills TODO FINISH
               title: Text(
                 allSkills
                     .firstWhere((s) => (skillGroups[i] == s.title ||
@@ -148,6 +162,11 @@ class SkillGroupsViewWidget extends StatelessWidget {
               ),
               collapsedBackgroundColor: Theme.of(context).backgroundColor,
               children: [
+                //TODO If skill group Exists, Render
+                //TODO Render Parent Skill
+                //TODO Get Skill Groups of children
+                //TODO Make list of ExpandTiles, Per Each Skill Group
+                //For Each Skill group Render Each Skill in each group
                 RenderSkillWidget(
                   skill: allSkills.firstWhere((s) =>
                       s.skillGroupName == skillGroups[i] ||
@@ -167,8 +186,9 @@ class SkillGroupsViewWidget extends StatelessWidget {
                         .toList()
                   ],
                 )
-              ], //Draw Skill
+              ],
             )
+          //Test if skill group only has one skill in it.
           : (allSkills.where((s) => s.skillGroupName == skillGroups[i] || s.title == skillGroups[i]).length ==
                       1 &&
                   (allSkills
@@ -187,6 +207,7 @@ class SkillGroupsViewWidget extends StatelessWidget {
                               .skillGroupName
                               .toString() ==
                           ''))
+              // Render Single skill in skill group
               ? ExpansionTile(
                   title: Text(
                     allSkills
@@ -200,15 +221,14 @@ class SkillGroupsViewWidget extends StatelessWidget {
                       skill: allSkills
                           .firstWhere((s) => skillGroups[i] == s.title),
                     )
-                  ], //Draw Skill
-                )
+                  ],
+                ) // Render Skill group with multi skills
               : ExpansionTile(
                   title: Text(
                     skillGroups[i],
                     style: Theme.of(context).textTheme.headline6,
                   ),
                   collapsedBackgroundColor: Theme.of(context).backgroundColor,
-                  //backgroundColor: Theme.of(context).backgroundColor,
                   children: [
                     (allSkills
                                     .where((s) =>
@@ -225,7 +245,7 @@ class SkillGroupsViewWidget extends StatelessWidget {
                                     .first
                                     .skillGroupDescription
                                     .toString() ==
-                                '')
+                                '') // If skill group desc is null or '' Make nothing, Else render a Skillgroup desc box
                         ? SizedBox()
                         : RenderSkillWidget(
                             skill: allSkills
@@ -281,15 +301,19 @@ class RenderSkillWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var hasChildren = false;
+    late List skillGroups;
+
     try {
       hasChildren = childrenSkills!.length > 0;
-      print(
-          'TITLE: ${skill.title} And ChildrenSkills Length is: ${childrenSkills!.length}');
+      // print(
+      //     'TITLE: ${skill.title} And ChildrenSkills Length is: ${childrenSkills!.length}');
+      skillGroups = _processChildSkills(childrenSkills!);
     } catch (e) {
       //Do Nothing
       hasChildren = false;
       print('TITLE: ${skill.title}');
     }
+
     return isSkillGroupDesc
         ? Container(
             child: ListTile(
@@ -302,10 +326,48 @@ class RenderSkillWidget extends StatelessWidget {
         : hasChildren //Render Parent Skill and It's Children
             ? Column(
                 children: [
-                  // RenderSkillWidget(
-                  //   skill: skill,
-                  //   parentSkill: false,
-                  // )
+                  (skill.skillGroupDescription == null ||
+                          skill.skillGroupDescription == '')
+                      ? SizedBox()
+                      : RenderSkillWidget(
+                          skill: skill,
+                          isSkillGroupDesc: true,
+                        ),
+                  RenderSkillWidget(
+                    skill: skill,
+                  ), // Render Skill group desc if it exists
+                  ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: skillGroups.length,
+                      itemBuilder: (ctx, i) {
+                        return Padding(
+                          padding: const EdgeInsets.only(left: 25.0),
+                          child: ExpansionTile(
+                            title: Text(skillGroups[i]),
+                            collapsedBackgroundColor:
+                                Theme.of(context).backgroundColor,
+                            children: [
+                              ListView.builder(
+                                  shrinkWrap: true,
+                                  itemCount: childrenSkills!
+                                      .where((s) =>
+                                          s.skillGroupName == skillGroups[i] ||
+                                          s.title == skillGroups[i])
+                                      .length,
+                                  itemBuilder: (ctx, j) {
+                                    return RenderSkillWidget(
+                                      skill: childrenSkills!
+                                          .where((s) =>
+                                              s.skillGroupName ==
+                                                  skillGroups[i] ||
+                                              s.title == skillGroups[i])
+                                          .elementAt(j),
+                                    );
+                                  })
+                            ],
+                          ),
+                        );
+                      }),
                 ],
               ) //TODO Make Thing for parent Skills
             : Container(
