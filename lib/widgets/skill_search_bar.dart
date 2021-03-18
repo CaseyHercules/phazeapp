@@ -20,6 +20,7 @@ class _SkillSearchBarState extends State<SkillSearchBar> {
 
   @override
   Widget build(BuildContext context) {
+    Provider.of<Skills>(context, listen: false).fetchAndSetSkills();
     final skills = Provider.of<Skills>(context);
     return Column(
       children: [

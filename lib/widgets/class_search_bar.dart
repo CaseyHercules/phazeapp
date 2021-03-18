@@ -20,6 +20,7 @@ class _ClassSearchBarState extends State<ClassSearchBar> {
 
   @override
   Widget build(BuildContext context) {
+    //  Provider.of<Classes>(context, listen: false).fetchAndSetClasses(context);
     final classes = Provider.of<Classes>(context);
     return Column(
       children: [

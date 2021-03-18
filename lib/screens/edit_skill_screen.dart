@@ -67,7 +67,7 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
           : _sourceSkill!.prerequisiteSkills;
       _editedSkillData[13] = _sourceSkill!.canBeTakenMultiple;
       _editedSkillData[14] = _sourceSkill!.playerVisable;
-      _editedSkillData[16] = (_sourceSkill!.additionalData == null
+      _editedSkillData[16] = (_sourceSkill?.additionalData == null
           ? []
           : _sourceSkill!.additionalData)!;
     } else {
@@ -91,6 +91,10 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
         additionalData: [],
       );
     }
+
+    _additionalDataList = _sourceSkill!.additionalData!;
+    print(
+        'TITLE: ${_sourceSkill!.title} And AddData: ${_sourceSkill?.additionalData}');
     super.didChangeDependencies();
   }
 
@@ -631,16 +635,12 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                     value: _editedSkillData[13] as bool,
                     onChanged: (bool value) {
                       setState(() => _editedSkillData[13] = value);
-
-                      print([..._prerequisiteSkillList!.map((s) => s!.id)]
-                          .join(",")
-                          .toString());
                     },
-                    secondary: Icon(_editedSkillData[13] != null
+                    secondary: Icon(_editedSkillData[13] as bool
                         ? Icons.reorder
                         : Icons.maximize),
                     title: Text(
-                        '${_editedSkillData[13] != null ? 'Skill Can be Taken Mutiple Times' : 'Skill Can\'t be Taken Mutiple Times'}'),
+                        '${_editedSkillData[13] == true ? 'Skill Can be Taken Mutiple Times' : 'Skill Can\'t be Taken Mutiple Times'}'),
                   ),
                   SwitchListTile(
                     // playerVisable, Testing
@@ -649,11 +649,11 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
                     onChanged: (bool value) {
                       setState(() => _editedSkillData[14] = value);
                     },
-                    secondary: Icon(_editedSkillData[14] != null
+                    secondary: Icon(_editedSkillData[14] as bool
                         ? Icons.visibility
                         : Icons.visibility_off),
                     title: Text(
-                        '${_editedSkillData[14] != null ? 'Visable to Players' : 'Not Visable to Players'}'),
+                        '${_editedSkillData[14] == true ? 'Visable to Players' : 'Not Visable to Players'}'),
                   )
                 ],
               )),

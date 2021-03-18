@@ -20,14 +20,16 @@ Future<void> _fetchData(BuildContext context) async {
 
 List _processSkills(List<Skill> s) {
   var skillGroups = [];
-
+  //Removes Skills With Parent Skills from Group
   //Separate Skills into Skill Groups
   s.forEach((s) {
-    if (s.skillGroupName == null || s.skillGroupName == '') {
-      skillGroups.add(s.title);
-    } else {
-      if (!(skillGroups.contains(s.skillGroupName))) {
-        skillGroups.add(s.skillGroupName);
+    if (s.parentSkill == null) {
+      if (s.skillGroupName == null || s.skillGroupName == '') {
+        skillGroups.add(s.title);
+      } else {
+        if (!(skillGroups.contains(s.skillGroupName))) {
+          skillGroups.add(s.skillGroupName);
+        }
       }
     }
   });
@@ -66,26 +68,23 @@ class _SkillListScreenState extends State<SkillListScreen> {
       });
     }
     return Scaffold(
-        appBar: AppBar(
-          title: Text('Skill List Page'),
-          // actions: [
-          //   IconButton(
-          //       icon: Icon(Icons.update), onPressed: () => _fetchData(context)),
-          // ],
-        ),
-        body: _isLoading
-            ? Center(
-                child: CircularProgressIndicator(),
-              )
-            : _testing
-                ? SingleChildScrollView(
-                    child: Container(
-                        height: MediaQuery.of(context).size.height,
-                        child: SkillGroupsViewWidget(allSkills: skills)),
-                  )
-                : ListView.builder(
-                    itemCount: skills.length,
-                    itemBuilder: (ctx, i) => SkillViewWidget(s: skills[i])));
+      appBar: AppBar(
+        title: Text('Skill List Page'),
+        // actions: [
+        //   IconButton(
+        //       icon: Icon(Icons.update), onPressed: () => _fetchData(context)),
+        // ],
+      ),
+      body: _isLoading
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : SingleChildScrollView(
+              child: Container(
+                  height: MediaQuery.of(context).size.height,
+                  child: SkillGroupsViewWidget(allSkills: skills)),
+            ),
+    );
   }
 }
 
@@ -116,122 +115,181 @@ class SkillGroupsViewWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //print('Hello: ${allSkills.where((s) => s.skillGroupName == '1').length}');
-    //Process Skills into skill groups
     final List skillGroups = _processSkills(allSkills);
-    print('');
+    //Process Skills into skill groups
+
     return ListView.builder(
       shrinkWrap: true,
       itemCount: skillGroups.length,
       itemBuilder: (ctx, i) => (allSkills
-                      .where((s) =>
-                          s.skillGroupName == skillGroups[i] ||
-                          s.title == skillGroups[i])
-                      .length ==
-                  1 &&
-              (allSkills
+                  .where((t) => (t.parentSkill != null))
+                  .where((u) =>
+                      u.parentSkill?.id ==
+                      (allSkills
                           .where((s) =>
-                              s.skillGroupName == skillGroups[i] ||
-                              s.title == skillGroups[i])
+                              (s.skillGroupName == skillGroups[i] ||
+                                  s.title == skillGroups[i]) &&
+                              s.parentSkill == null)
                           .first
-                          .skillGroupName
-                          .toString() ==
-                      'null' ||
-                  allSkills
-                          .where((s) =>
-                              s.skillGroupName == skillGroups[i] ||
-                              s.title == skillGroups[i])
-                          .first
-                          .skillGroupName
-                          .toString() ==
-                      ''))
+                          .id))
+                  .length !=
+              0)
+          //? Text('Boop')
+          // Test for if skill has parent Skill, then ignores them
+          // Logic, Get List of All Skill that have a parent, Then, Return an array of skills' parent skill ids that match the id of the current Skill being Checked.
+          // ID: (allSkills.where((s) => (s.skillGroupName == skillGroups[i] || s.title == skillGroups[i]) && s.parentSkill == null).first.id)
           ? ExpansionTile(
               title: Text(
-                allSkills.firstWhere((s) => skillGroups[i] == s.title).title,
+                allSkills
+                    .firstWhere((s) => (skillGroups[i] == s.title ||
+                        s.skillGroupName == skillGroups[i]))
+                    .title,
                 style: Theme.of(context).textTheme.headline6,
               ),
               collapsedBackgroundColor: Theme.of(context).backgroundColor,
               children: [
                 RenderSkillWidget(
-                  skill: allSkills.firstWhere((s) => skillGroups[i] == s.title),
+                  skill: allSkills.firstWhere((s) =>
+                      s.skillGroupName == skillGroups[i] ||
+                      s.title == skillGroups[i]),
+                  childrenSkills: [
+                    ...allSkills
+                        .where((t) => (t.parentSkill != null))
+                        .where((u) =>
+                            u.parentSkill?.id ==
+                            (allSkills
+                                .where((s) =>
+                                    (s.skillGroupName == skillGroups[i] ||
+                                        s.title == skillGroups[i]) &&
+                                    s.parentSkill == null)
+                                .first
+                                .id))
+                        .toList()
+                  ],
                 )
               ], //Draw Skill
             )
-          : ExpansionTile(
-              title: Text(
-                skillGroups[i],
-                style: Theme.of(context).textTheme.headline6,
-              ),
-              collapsedBackgroundColor: Theme.of(context).backgroundColor,
-              //backgroundColor: Theme.of(context).backgroundColor,
-              children: [
-                (allSkills
-                                .where((s) =>
-                                    s.skillGroupName == skillGroups[i] ||
-                                    s.title == skillGroups[i])
-                                .first
-                                .skillGroupDescription
-                                .toString() ==
-                            'null' ||
-                        allSkills
-                                .where((s) =>
-                                    s.skillGroupName == skillGroups[i] ||
-                                    s.title == skillGroups[i])
-                                .first
-                                .skillGroupDescription
-                                .toString() ==
-                            '')
-                    ? SizedBox()
-                    : RenderSkillWidget(
-                        skill: allSkills
-                            .where((s) =>
-                                s.skillGroupName == skillGroups[i] ||
-                                s.title == skillGroups[i])
-                            .first,
-                        isSkillGroupDesc: true,
-                      ),
-                ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: allSkills
-                      .where((s) =>
-                          s.skillGroupName == skillGroups[i] ||
-                          s.title == skillGroups[i])
-                      .length,
-                  itemBuilder: (ctx, j) {
-                    return Column(
-                      children: [
-                        RenderSkillWidget(
-                          skill: allSkills
+          : (allSkills.where((s) => s.skillGroupName == skillGroups[i] || s.title == skillGroups[i]).length ==
+                      1 &&
+                  (allSkills
                               .where((s) =>
                                   s.skillGroupName == skillGroups[i] ||
                                   s.title == skillGroups[i])
-                              .elementAt(j),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-                SizedBox(
-                  height: 10,
+                              .first
+                              .skillGroupName
+                              .toString() ==
+                          'null' ||
+                      allSkills
+                              .where((s) =>
+                                  s.skillGroupName == skillGroups[i] ||
+                                  s.title == skillGroups[i])
+                              .first
+                              .skillGroupName
+                              .toString() ==
+                          ''))
+              ? ExpansionTile(
+                  title: Text(
+                    allSkills
+                        .firstWhere((s) => skillGroups[i] == s.title)
+                        .title,
+                    style: Theme.of(context).textTheme.headline6,
+                  ),
+                  collapsedBackgroundColor: Theme.of(context).backgroundColor,
+                  children: [
+                    RenderSkillWidget(
+                      skill: allSkills
+                          .firstWhere((s) => skillGroups[i] == s.title),
+                    )
+                  ], //Draw Skill
                 )
-              ],
-            ),
+              : ExpansionTile(
+                  title: Text(
+                    skillGroups[i],
+                    style: Theme.of(context).textTheme.headline6,
+                  ),
+                  collapsedBackgroundColor: Theme.of(context).backgroundColor,
+                  //backgroundColor: Theme.of(context).backgroundColor,
+                  children: [
+                    (allSkills
+                                    .where((s) =>
+                                        s.skillGroupName == skillGroups[i] ||
+                                        s.title == skillGroups[i])
+                                    .first
+                                    .skillGroupDescription
+                                    .toString() ==
+                                'null' ||
+                            allSkills
+                                    .where((s) =>
+                                        s.skillGroupName == skillGroups[i] ||
+                                        s.title == skillGroups[i])
+                                    .first
+                                    .skillGroupDescription
+                                    .toString() ==
+                                '')
+                        ? SizedBox()
+                        : RenderSkillWidget(
+                            skill: allSkills
+                                .where((s) =>
+                                    s.skillGroupName == skillGroups[i] ||
+                                    s.title == skillGroups[i])
+                                .first,
+                            isSkillGroupDesc: true,
+                          ),
+                    ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: allSkills
+                          .where((s) =>
+                              s.skillGroupName == skillGroups[i] ||
+                              s.title == skillGroups[i])
+                          .length,
+                      itemBuilder: (ctx, j) {
+                        return Column(
+                          children: [
+                            RenderSkillWidget(
+                              skill: allSkills
+                                  .where((s) =>
+                                      s.skillGroupName == skillGroups[i] ||
+                                      s.title == skillGroups[i])
+                                  .elementAt(j),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                    SizedBox(
+                      height: 10,
+                    )
+                  ],
+                ),
     );
   }
 }
 
 class RenderSkillWidget extends StatelessWidget {
-  RenderSkillWidget({
-    Key? key,
-    required this.skill,
-    this.isSkillGroupDesc = false,
-  }) : super(key: key);
+  RenderSkillWidget(
+      {Key? key,
+      required this.skill,
+      this.isSkillGroupDesc = false,
+      this.childrenSkills})
+      : super(key: key);
 
   final Skill skill;
   final bool isSkillGroupDesc;
+  final List<Skill>? childrenSkills;
+  //final bool childrenSkills;
 
   @override
   Widget build(BuildContext context) {
+    var hasChildren = false;
+    try {
+      hasChildren = childrenSkills!.length > 0;
+      print(
+          'TITLE: ${skill.title} And ChildrenSkills Length is: ${childrenSkills!.length}');
+    } catch (e) {
+      //Do Nothing
+      hasChildren = false;
+      print('TITLE: ${skill.title}');
+    }
     return isSkillGroupDesc
         ? Container(
             child: ListTile(
@@ -241,93 +299,107 @@ class RenderSkillWidget extends StatelessWidget {
               ),
             ),
           )
-        : Container(
-            child: Column(
-              children: [
-                ListTile(
-                  title: Text(
-                    'Tier ' +
-                        skill.tier.toString() +
-                        ' - ' +
-                        skill.title.toString(),
-                    style: Theme.of(context).textTheme.headline4,
-                  ),
-                  dense: true,
-                ),
-                ListTile(
-                  title: Text(
-                    '    ' + skill.description,
-                    style: Theme.of(context).textTheme.subtitle1,
-                  ),
-                  dense: true,
-                ),
-                SizedBox(
-                  height: 5,
-                ),
-                ListTile(
-                  // Cost
-                  title: RichText(
-                    text: TextSpan(
+        : hasChildren //Render Parent Skill and It's Children
+            ? Column(
+                children: [
+                  // RenderSkillWidget(
+                  //   skill: skill,
+                  //   parentSkill: false,
+                  // )
+                ],
+              ) //TODO Make Thing for parent Skills
+            : Container(
+                //Render Non-parent Skills
+                child: Column(
+                  children: [
+                    ListTile(
+                      title: Text(
+                        'Tier ' +
+                            skill.tier.toString() +
+                            ' - ' +
+                            skill.title.toString(),
+                        style: Theme.of(context).textTheme.headline4,
+                      ),
+                      dense: true,
+                    ),
+                    ListTile(
+                      title: Text(
+                        '    ' + skill.description,
                         style: Theme.of(context).textTheme.subtitle1,
-                        children: [
-                          TextSpan(
-                              text: 'Cost: ',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
-                          TextSpan(
-                              text: skill.permenentEpReduction == 0
-                                  ? skill.epCost.toString()
-                                  : 'Permanent Ep reduction of ${skill.permenentEpReduction}'),
-                        ]),
-                  ),
-                  dense: true,
+                      ),
+                      dense: true,
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    ListTile(
+                      // Cost
+                      title: RichText(
+                        text: TextSpan(
+                            style: Theme.of(context).textTheme.subtitle1,
+                            children: [
+                              TextSpan(
+                                  text: 'Cost: ',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold)),
+                              TextSpan(
+                                  text: skill.permenentEpReduction == 0
+                                      ? skill.epCost.toString()
+                                      : 'Permanent Ep reduction of ${skill.permenentEpReduction}'),
+                            ]),
+                      ),
+                      dense: true,
+                    ),
+                    ListTile(
+                      // Activation
+                      title: RichText(
+                        text: TextSpan(
+                            style: Theme.of(context).textTheme.subtitle1,
+                            children: [
+                              TextSpan(
+                                  text: 'Activation: ',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold)),
+                              TextSpan(text: skill.activation),
+                            ]),
+                      ),
+                      dense: true,
+                    ),
+                    ListTile(
+                      // Duration
+                      title: RichText(
+                        text: TextSpan(
+                            style: Theme.of(context).textTheme.subtitle1,
+                            children: [
+                              TextSpan(
+                                  text: 'Duration: ',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold)),
+                              TextSpan(text: skill.duration),
+                            ]),
+                      ),
+                      dense: true,
+                    ),
+                    ListTile(
+                      // Ability Check
+                      title: RichText(
+                        text: TextSpan(
+                            style: Theme.of(context).textTheme.subtitle1,
+                            children: [
+                              TextSpan(
+                                  text: 'Ability Check: ',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold)),
+                              TextSpan(text: skill.abilityCheck),
+                            ]),
+                      ),
+                      dense: true,
+                    ),
+                    SizedBox(
+                      height: 20,
+                    )
+                  ],
                 ),
-                ListTile(
-                  // Activation
-                  title: RichText(
-                    text: TextSpan(
-                        style: Theme.of(context).textTheme.subtitle1,
-                        children: [
-                          TextSpan(
-                              text: 'Activation: ',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
-                          TextSpan(text: skill.activation),
-                        ]),
-                  ),
-                  dense: true,
-                ),
-                ListTile(
-                  // Duration
-                  title: RichText(
-                    text: TextSpan(
-                        style: Theme.of(context).textTheme.subtitle1,
-                        children: [
-                          TextSpan(
-                              text: 'Duration: ',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
-                          TextSpan(text: skill.duration),
-                        ]),
-                  ),
-                  dense: true,
-                ),
-                ListTile(
-                  // Ability Check
-                  title: RichText(
-                    text: TextSpan(
-                        style: Theme.of(context).textTheme.subtitle1,
-                        children: [
-                          TextSpan(
-                              text: 'Ability Check: ',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
-                          TextSpan(text: skill.abilityCheck),
-                        ]),
-                  ),
-                  dense: true,
-                ),
-                SizedBox(
-                  height: 20,
-                )
-              ],
-            ),
-          );
+              );
   }
 }
