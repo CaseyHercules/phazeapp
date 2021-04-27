@@ -161,6 +161,7 @@ class SkillGroupsViewWidget extends StatelessWidget {
                     .title,
                 style: Theme.of(context).textTheme.headline6,
               ),
+
               collapsedBackgroundColor: Theme.of(context).backgroundColor,
               children: [
                 //TODO If skill group Exists, Render
@@ -327,13 +328,9 @@ class RenderSkillWidget extends StatelessWidget {
         : hasChildren //Render Parent Skill and It's Children
             ? Column(
                 children: [
-                  (skill.skillGroupDescription == null ||
-                          skill.skillGroupDescription == '')
-                      ? SizedBox()
-                      : RenderSkillWidget(
-                          skill: skill,
-                          isSkillGroupDesc: true,
-                        ),
+                  RenderSkillWidget(
+                    skill: skill,
+                  ),
                   // Render Skill group desc if it exists
                   ListView.builder(
                       shrinkWrap: true,
@@ -342,7 +339,8 @@ class RenderSkillWidget extends StatelessWidget {
                         return Padding(
                           padding: const EdgeInsets.only(left: 25.0),
                           child: ExpansionTile(
-                            title: Text(skillGroups[i]),
+                            title: Text(
+                                skillGroups[i] + ' - Requires ${skill.title}'),
                             collapsedBackgroundColor:
                                 Theme.of(context).backgroundColor,
                             children: [
@@ -368,9 +366,9 @@ class RenderSkillWidget extends StatelessWidget {
                         );
                       }),
                 ],
-              ) //TODO Make Thing for parent Skills
+              )
             : Container(
-                //Render Non-parent Skills
+                //Render Skills
                 child: Column(
                   children: [
                     ListTile(
@@ -390,6 +388,21 @@ class RenderSkillWidget extends StatelessWidget {
                       ),
                       dense: true,
                     ),
+                    skill.additionalData == null
+                        ? SizedBox()
+                        : ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: skill.additionalData!.length,
+                            itemBuilder: (ctx, iAD) {
+                              return Padding(
+                                padding: const EdgeInsets.all(1.0),
+                                child: (Text(
+                                  '        • ${skill.additionalData![iAD]}',
+                                  style: Theme.of(context).textTheme.subtitle1,
+                                )),
+                              );
+                            },
+                          ),
                     SizedBox(
                       height: 5,
                     ),
@@ -456,6 +469,31 @@ class RenderSkillWidget extends StatelessWidget {
                       ),
                       dense: true,
                     ),
+                    ListTile(
+                      // Ability Check
+                      title: RichText(
+                        text: TextSpan(
+                            style: Theme.of(context).textTheme.subtitle1,
+                            children: [
+                              TextSpan(
+                                  text: 'Ability Check: ',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold)),
+                              TextSpan(text: skill.abilityCheck),
+                            ]),
+                      ),
+                      dense: true,
+                    ),
+                    !skill.canBeTakenMultiple
+                        ? SizedBox()
+                        : ListTile(
+                            // canBeTakenMultiple
+                            title: Text(
+                              'This ability Can be taken multiple times',
+                              style: Theme.of(context).textTheme.subtitle1,
+                            ),
+                            dense: true,
+                          ),
                     SizedBox(
                       height: 20,
                     )
