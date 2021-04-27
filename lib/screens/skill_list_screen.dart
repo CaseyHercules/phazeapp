@@ -134,6 +134,7 @@ class SkillGroupsViewWidget extends StatelessWidget {
 
     return ListView.builder(
       shrinkWrap: true,
+      primary: true,
       itemCount: skillGroups.length,
       itemBuilder: (ctx, i) => (allSkills
                   .where((t) => (t.parentSkill != null))
@@ -333,9 +334,7 @@ class RenderSkillWidget extends StatelessWidget {
                           skill: skill,
                           isSkillGroupDesc: true,
                         ),
-                  RenderSkillWidget(
-                    skill: skill,
-                  ), // Render Skill group desc if it exists
+                  // Render Skill group desc if it exists
                   ListView.builder(
                       shrinkWrap: true,
                       itemCount: skillGroups.length,

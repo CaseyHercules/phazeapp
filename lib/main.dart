@@ -29,6 +29,7 @@ class _PhazeAppState extends State<PhazeApp> {
 
   @override
   Widget build(BuildContext context) {
+    print('build main');
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (ctx) => Skills()),

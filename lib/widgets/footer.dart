@@ -11,8 +11,9 @@ class Footer extends StatelessWidget {
         children: [
           Text(
               String.fromCharCodes(
-                Runes('Interphaze LLC \u00a9 $year'),
+                Runes('Build Number: 0.1.1\nInterphaze LLC \u00a9 $year'),
               ),
+              textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.subtitle2),
         ],
       ),

@@ -306,7 +306,6 @@ class Skills with ChangeNotifier {
   }
 
   Future<void> updateSkill(Skill updatedSkill) async {
-    //Untested
     print('ID: ${updatedSkill.id}');
     var url = Uri.https(
       'interphaze-pocket-scholar-default-rtdb.firebaseio.com',
@@ -427,3 +426,23 @@ class Skills with ChangeNotifier {
   //   notifyListeners();
   // } //Untested
 }
+
+//Shadow Step BA
+//Activate Tatto BA
+//Cast Darkness A
+//Cast Hex A
+//Move Hex BA
+//Attack A
+//Attack Extra BA
+//
+//Activate Hex Blade BA
+
+// Turn 1
+// A Darkness
+// B Tattoo
+// M Move
+
+// Turn 1
+// A Hex
+// B Step ||
+// M

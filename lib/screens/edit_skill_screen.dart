@@ -3,6 +3,14 @@ import 'package:provider/provider.dart';
 
 import '../models/skill.dart';
 
+//Notes
+//This whole page should be redone.
+//But that is a problem for later
+//
+//
+//Current ISSUES
+//TODO When Text goes off screen, it disappears.
+
 class EditSkillScreen extends StatefulWidget {
   static const routeName = '/edit-skill-screen';
   @override
@@ -60,6 +68,7 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
     if (_skillId != null) {
       _sourceSkill =
           Provider.of<Skills>(context, listen: false).findById(_skillId);
+
       _parentSkill =
           _sourceSkill!.parentSkill == null ? null : _sourceSkill!.parentSkill;
       _prerequisiteSkillList = _sourceSkill!.prerequisiteSkills == null
@@ -67,9 +76,7 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
           : _sourceSkill!.prerequisiteSkills;
       _editedSkillData[13] = _sourceSkill!.canBeTakenMultiple;
       _editedSkillData[14] = _sourceSkill!.playerVisable;
-      _editedSkillData[16] = (_sourceSkill?.additionalData == null
-          ? []
-          : _sourceSkill!.additionalData)!;
+      _editedSkillData[16] = _sourceSkill!.additionalData ?? [];
     } else {
       _sourceSkill = Skill(
         id: 'New Skill',
@@ -92,7 +99,8 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
       );
     }
 
-    _additionalDataList = _sourceSkill!.additionalData!;
+    _additionalDataList = _sourceSkill!.additionalData ?? [];
+
     print(
         'TITLE: ${_sourceSkill!.title} And AddData: ${_sourceSkill?.additionalData}');
     super.didChangeDependencies();
@@ -164,6 +172,7 @@ class _EditSkillScreenState extends State<EditSkillScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print('build');
     return Scaffold(
       appBar: AppBar(
         title: Text('Edit Skills on Database'),
