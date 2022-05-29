@@ -426,23 +426,3 @@ class Skills with ChangeNotifier {
   //   notifyListeners();
   // } //Untested
 }
-
-//Shadow Step BA
-//Activate Tatto BA
-//Cast Darkness A
-//Cast Hex A
-//Move Hex BA
-//Attack A
-//Attack Extra BA
-//
-//Activate Hex Blade BA
-
-// Turn 1
-// A Darkness
-// B Tattoo
-// M Move
-
-// Turn 1
-// A Hex
-// B Step ||
-// M

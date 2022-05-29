@@ -10,6 +10,11 @@ class EditClassScreen extends StatefulWidget {
   _EditClassScreenState createState() => _EditClassScreenState();
 }
 
+//TODO
+//Remove Default values
+//On save pop back to search scree
+//Multi Line Skill List?
+
 final List<int> temp = [
   1,
   2,

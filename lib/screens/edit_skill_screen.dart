@@ -10,6 +10,9 @@ import '../models/skill.dart';
 //
 //Current ISSUES
 //TODO When Text goes off screen, it disappears.
+//
+//TODO Make Passport Description expande in height liek desc
+//TODO Add Passport Title for each skill group
 
 class EditSkillScreen extends StatefulWidget {
   static const routeName = '/edit-skill-screen';

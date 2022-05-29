@@ -11,6 +11,8 @@ class ClassSearchBar extends StatefulWidget {
 
 List<Class> _searchResults = [];
 
+//TODO update on letter press like skill list
+
 class _ClassSearchBarState extends State<ClassSearchBar> {
   @override
   void initState() {

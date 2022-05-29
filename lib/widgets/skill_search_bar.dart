@@ -61,6 +61,12 @@ class _SkillSearchBarState extends State<SkillSearchBar> {
                             _searchResults[i].skillGroupName == null)
                         ? '${_searchResults[i].title} ${_searchResults[i].tier}'
                         : '${_searchResults[i].skillGroupName} --> ${_searchResults[i].title} ${_searchResults[i].tier}'),
+                    trailing: IconButton(
+                      icon: Icon(Icons.clear),
+                      onPressed: () {
+                        print('REMOVEW ME');
+                      },
+                    ),
                     onTap: () {
                       Navigator.of(context).pushNamed(EditSkillScreen.routeName,
                           arguments: _searchResults[i].id);
