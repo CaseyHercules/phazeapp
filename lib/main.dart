@@ -6,9 +6,12 @@ import 'package:provider/provider.dart';
 import 'config.dart';
 import './models/skill.dart';
 import './models/class.dart';
+import './models/user.dart';
+import './models/passport.dart';
 import './screens/choose_entry.dart';
 import './screens/landing_screen.dart';
 import './screens/skill_list_screen.dart';
+import './screens/passport_screen.dart';
 
 void main() => runApp(PhazeApp());
 
@@ -105,6 +108,7 @@ class _PhazeAppState extends State<PhazeApp> {
           EditSkillScreen.routeName: (ctx) => EditSkillScreen(),
           EditClassScreen.routeName: (ctx) => EditClassScreen(),
           SkillListScreen.routeName: (ctx) => SkillListScreen(),
+          PassportScreen.routeName: (ctx) => PassportScreen(),
         },
       ),
     );

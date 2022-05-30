@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:phazeapp/screens/passport_screen.dart';
 
 import 'package:phazeapp/screens/skill_list_screen.dart';
 import 'package:phazeapp/screens/choose_entry.dart';
@@ -30,11 +31,11 @@ class AppDrawer extends StatelessWidget {
             leading: Icon(
               Icons.gavel,
               color: Theme.of(context).accentColor,
-              semanticLabel: 'Judge\'s Area',
+              semanticLabel: 'My Passport',
             ),
-            title: Text('Judge\'s Area'),
+            title: Text('My Passport(s)'),
             onTap: () {
-              //Navigator.of(context).pushReplacementNamed();
+              Navigator.of(context).pushNamed(PassportScreen.routeName);
             },
           ),
           Divider(),
