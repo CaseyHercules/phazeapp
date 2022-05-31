@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart' show IterableExtension;
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
@@ -12,11 +13,11 @@ import 'skill.dart';
 
 class Passport {
   @required
-  String pid;
+  String? pid;
   @required
-  String playerId;
+  String? playerId;
   @required
-  String name;
+  String? name;
   String? specialAbility;
   @required
   Class? primaryClass;
@@ -24,11 +25,11 @@ class Passport {
   Class? secondaryClass;
   List<Skill?>? secondaryClassSkills;
   @required
-  int alignment;
+  int? alignment;
   @required
-  int totalLevel;
-  int primaryClassLevel;
-  int secondaryClassLevel;
+  int? totalLevel;
+  int? primaryClassLevel;
+  int? secondaryClassLevel;
   String? race; //Change to race Class when created
   List<String?>? dinguses;
 
@@ -37,9 +38,9 @@ class Passport {
     this.playerId = '',
     this.name = '',
     this.specialAbility,
-    this.primaryClass,
+    this.primaryClass = null,
     this.primaryClassSkills,
-    this.secondaryClass,
+    this.secondaryClass = null,
     this.secondaryClassSkills,
     this.alignment = 0,
     this.totalLevel = 0,
@@ -58,23 +59,34 @@ class Passport {
     print('Player ID: $playerId');
     print('Name: $name');
     print('specialAbility: $specialAbility');
-    print('ID: $primaryClass');
-    print('ID: $primaryClassSkills');
-    print('ID: $secondaryClass');
-    print('ID: $secondaryClassSkills');
-    print('ID: $alignment');
-    print('ID: $totalLevel');
-    print('ID: $primaryClassLevel');
-    print('ID: $secondaryClassLevel');
-    print('ID: $race');
-    print('ID: $dinguses');
+    print('PC: $primaryClass');
+    print('PCS: $primaryClassSkills');
+    print('SC: $secondaryClass');
+    print('SCS: $secondaryClassSkills');
+    print('A: $alignment');
+    print('TL: $totalLevel');
+    print('PCL: $primaryClassLevel');
+    print('SCL: $secondaryClassLevel');
+    print('Race: $race');
+    print('Ding: $dinguses');
+  }
+}
+
+class Passports extends ChangeNotifier {
+  List<Passport> _passports = [];
+
+  List<Passport> get passports {
+    return [..._passports];
   }
 
-  Future<void> fetchPassport(passportId) async {
-    //TODO Incomplete
+  Iterable<String> getPassportNames() {
+    return [..._passports].map((p) => p.name!);
+  }
+
+  Future<void> fetchPassport(String pid) async {
     var url = Uri.https(
-      'interphaze-pocket-scholar-default-rtdb.firebaseio.com/passport/',
-      '$passportId.json',
+      'interphaze-pocket-scholar-default-rtdb.firebaseio.com/',
+      'passport/${pid}.json',
     );
     try {
       final response = await http.get(url);
@@ -84,93 +96,95 @@ class Passport {
         return;
       }
       print(extractedData);
-      //extractedData.forEach((id, c) {});
+      Passport loadedPassport = (Passport(
+        pid: extractedData.keys.first,
+      ));
     } catch (error) {
       print(error);
       throw (error);
     }
   }
+}
 
-  //Create Passport
-  Future<void> createPassport(Passport p) async {
-    var url = Uri.https(
-      'interphaze-pocket-scholar-default-rtdb.firebaseio.com',
-      'passport.json',
+//Create Passport
+Future<void> createPassport(Passport p) async {
+  var url = Uri.https(
+    'interphaze-pocket-scholar-default-rtdb.firebaseio.com',
+    'passports.json',
+  );
+  try {
+    final response = await http.post(
+      url,
+      body: jsonEncode(
+        {
+          'name': p.name,
+          'playerId': p.playerId,
+          'totalLevel': p.totalLevel,
+          'primaryClass': p.primaryClass == null ? '' : p.primaryClass!.classId,
+          'primaryClassSkills': p.primaryClassSkills == null
+              ? ''
+              : [...p.primaryClassSkills!.map((s) => s!.id)].join(","),
+          'primaryClassLevel': p.primaryClassLevel,
+          'secondaryClass':
+              p.secondaryClass == null ? '' : p.secondaryClass!.classId,
+          'secondaryClassSkills': p.secondaryClassSkills == null
+              ? ''
+              : [...p.secondaryClassSkills!.map((s) => s!.id)].join(","),
+          'secondaryClassLevel': p.secondaryClassLevel,
+          'alignment': p.alignment,
+          'race': p.race, //Will be race.id once race object is created
+          'specialAbility': p.specialAbility,
+          'dinguses': p.dinguses == null ? '' : [...p.dinguses!].join(","),
+        },
+      ),
     );
-    try {
-      final response = await http.post(
-        url,
-        body: jsonEncode(
-          {
-            'name': p.name,
-            'playerId': p.playerId,
-            'totalLevel': p.totalLevel,
-            'primaryClass':
-                p.primaryClass == null ? '' : p.primaryClass!.classId,
-            'primaryClassSkills': p.primaryClassSkills == null
-                ? ''
-                : [...p.primaryClassSkills!.map((s) => s!.id)].join(","),
-            'primaryClassLevel': p.primaryClassLevel,
-            'secondaryClass':
-                p.secondaryClass == null ? '' : p.secondaryClass!.classId,
-            'secondaryClassSkills': p.secondaryClassSkills == null
-                ? ''
-                : [...p.secondaryClassSkills!.map((s) => s!.id)].join(","),
-            'secondaryClassLevel': p.secondaryClassLevel,
-            'alignment': p.alignment,
-            'race': p.race, //Will be race.id once race object is created
-            'specialAbility': p.specialAbility,
-            'dinguses': [...p.dinguses!].join(","),
-          },
-        ),
-      );
-      if (response.statusCode >= 400) {
-        throw HttpException(
-            'Couldn\'t reach server. Error:${response.statusCode}');
-      }
-    } catch (e) {}
-  }
-
-  //Update Passport
-  Future<void> updatePassport(Passport p) async {
-    var url = Uri.https(
-      'interphaze-pocket-scholar-default-rtdb.firebaseio.com',
-      'passport/${p.pid}.json',
-    );
-    try {
-      final response = await http.post(
-        url,
-        body: jsonEncode(
-          {
-            'name': p.name,
-            'playerId': p.playerId,
-            'totalLevel': p.totalLevel,
-            'primaryClass':
-                p.primaryClass == null ? '' : p.primaryClass!.classId,
-            'primaryClassSkills': p.primaryClassSkills == null
-                ? ''
-                : [...p.primaryClassSkills!.map((s) => s!.id)].join(","),
-            'primaryClassLevel': p.primaryClassLevel,
-            'secondaryClass':
-                p.secondaryClass == null ? '' : p.secondaryClass!.classId,
-            'secondaryClassSkills': p.secondaryClassSkills == null
-                ? ''
-                : [...p.secondaryClassSkills!.map((s) => s!.id)].join(","),
-            'secondaryClassLevel': p.secondaryClassLevel,
-            'alignment': p.alignment,
-            'race': p.race, //Will be race.id once race object is created
-            'specialAbility': p.specialAbility,
-            'dinguses': [...p.dinguses!].join(","),
-          },
-        ),
-      );
-      if (response.statusCode >= 400) {
-        throw HttpException(
-            'Couldn\'t reach server. Error:${response.statusCode}');
-      }
-    } catch (e) {
-      print(e);
-      throw (e);
+    if (response.statusCode >= 400) {
+      throw HttpException(
+          'Couldn\'t reach server. Error:${response.statusCode}');
     }
+  } catch (e) {
+    print(e);
+  }
+}
+
+//Update Passport
+Future<void> updatePassport(Passport p) async {
+  var url = Uri.https(
+    'interphaze-pocket-scholar-default-rtdb.firebaseio.com',
+    'passport/${p.pid}.json',
+  );
+  try {
+    final response = await http.post(
+      url,
+      body: jsonEncode(
+        {
+          'name': p.name,
+          'playerId': p.playerId,
+          'totalLevel': p.totalLevel,
+          'primaryClass': p.primaryClass == null ? '' : p.primaryClass!.classId,
+          'primaryClassSkills': p.primaryClassSkills == null
+              ? ''
+              : [...p.primaryClassSkills!.map((s) => s!.id)].join(","),
+          'primaryClassLevel': p.primaryClassLevel,
+          'secondaryClass':
+              p.secondaryClass == null ? '' : p.secondaryClass!.classId,
+          'secondaryClassSkills': p.secondaryClassSkills == null
+              ? ''
+              : [...p.secondaryClassSkills!.map((s) => s!.id)].join(","),
+          'secondaryClassLevel': p.secondaryClassLevel,
+          'alignment': p.alignment,
+          'race': p.race, //Will be race.id once race object is created
+          'specialAbility': p.specialAbility,
+          'dinguses': [...p.dinguses!].join(","),
+        },
+      ),
+    );
+    if (response.statusCode >= 400) {
+      throw HttpException(
+          'Couldn\'t reach server. Error:${response.statusCode}');
+    }
+  } catch (e) {
+    print(e);
+    throw (e);
   }
 }
