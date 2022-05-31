@@ -25,6 +25,12 @@ class ViewPassport extends StatelessWidget {
             decoration: const BoxDecoration(color: Colors.blue),
           ),
         ),
+        Card(
+          child: Padding(
+            padding: EdgeInsets.all(5),
+            child: Text('Hello ${passport?.name} Test'),
+          ),
+        )
       ],
     );
   }

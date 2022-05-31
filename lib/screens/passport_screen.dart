@@ -29,19 +29,19 @@ class _PassportScreenState extends State<PassportScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text('My Passport'),
-          actions: [
-            IconButton(
-                icon: Icon(Icons.save), onPressed: () => createPassport(p))
-          ],
-        ),
-        body: _isLoading
-            ? Center(child: CircularProgressIndicator())
-            : _isEditing
-                ? Center(child: CircularProgressIndicator())
-                : ViewPassport(
-                    passport: p,
-                  ));
+      appBar: AppBar(
+        title: Text('My Passport'),
+        actions: [
+          IconButton(icon: Icon(Icons.save), onPressed: () => createPassport(p))
+        ],
+      ),
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : _isEditing
+              ? Center(child: CircularProgressIndicator())
+              : ViewPassport(
+                  passport: p,
+                ),
+    );
   }
 }
